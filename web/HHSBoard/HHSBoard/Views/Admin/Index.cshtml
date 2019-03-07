@@ -1,4 +1,4 @@
-﻿
+﻿@model HHSBoard.Models.AdminViewModels.AdminIndexViewModel
 @{
     ViewData["Title"] = "Admin Page";
 }
@@ -6,3 +6,7 @@
 <h2>This is the admin page</h2>
 <h4>Only admin users can view this page!</h4>
 
+@foreach (var user in Model.ApplicationUsers)
+{
+    <p>@user.Email</p>
+}

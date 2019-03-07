@@ -58,14 +58,13 @@ namespace HHSBoard
                 // Cookie settings 
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                options.LoginPath = "/Account/Login"; // If the LoginPath is not set here,  
-                                                      // ASP.NET Core will default to /Account/Login 
-                options.LogoutPath = "/Account/Logout"; // If the LogoutPath is not set here,  
-                                                        // ASP.NET Core will default to /Account/Logout 
-                options.AccessDeniedPath = "/Account/AccessDenied"; // If the AccessDeniedPath is  
-                                                                    // not set here, ASP.NET Core  
-                                                                    // will default to  
-                                                                    // /Account/AccessDenied 
+                // If the LoginPath is not set here, ASP.NET Core will default to /Account/Login 
+                options.LoginPath = "/Account/Login";
+                // If the LogoutPath is not set here, ASP.NET Core will default to /Account/Logout
+                options.LogoutPath = "/Account/Logout";   
+                // If the AccessDeniedPath is not set here, ASP.NET Core will default to /Account/AccessDenied 
+                options.AccessDeniedPath = "/Account/AccessDenied"; 
+          
                 options.SlidingExpiration = true;
             });
 
@@ -78,8 +77,6 @@ namespace HHSBoard
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
         {
-            
-
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();
@@ -102,25 +99,23 @@ namespace HHSBoard
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            createRolesandUsersAsync(services).Wait();
+            CreateRolesandUsersAsync(services).Wait();
         }
 
-        private async Task createRolesandUsersAsync(IServiceProvider serviceProvider)
+        private async Task CreateRolesandUsersAsync(IServiceProvider serviceProvider)
         {
-            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string[] roles = { "Admin", "User" };
-            
-     
+                 
             IdentityResult roleResult;
             foreach (var role in roles)
             {
-                var roleExists = await RoleManager.RoleExistsAsync(role);
+                var roleExists = await roleManager.RoleExistsAsync(role);
                 if (!roleExists)
                 {
-                    roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
-
+                    roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
                 }
             }
         }

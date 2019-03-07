@@ -33,6 +33,41 @@ namespace HHSBoard
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings 
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
+
+                // Lockout settings 
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings 
+                options.User.RequireUniqueEmail = true;
+            });
+
+            //Setting the Account Login page 
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings 
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                // If the LoginPath is not set here, ASP.NET Core will default to /Account/Login 
+                options.LoginPath = "/Account/Login";
+                // If the LogoutPath is not set here, ASP.NET Core will default to /Account/Logout
+                options.LogoutPath = "/Account/Logout";   
+                // If the AccessDeniedPath is not set here, ASP.NET Core will default to /Account/AccessDenied 
+                options.AccessDeniedPath = "/Account/AccessDenied"; 
+          
+                options.SlidingExpiration = true;
+            });
+
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
@@ -40,7 +75,7 @@ namespace HHSBoard
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
             {
@@ -63,6 +98,26 @@ namespace HHSBoard
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            CreateRolesandUsersAsync(services).Wait();
+        }
+
+        private async Task CreateRolesandUsersAsync(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            string[] roles = { "Admin", "User" };
+                 
+            IdentityResult roleResult;
+            foreach (var role in roles)
+            {
+                var roleExists = await roleManager.RoleExistsAsync(role);
+                if (!roleExists)
+                {
+                    roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
+                }
+            }
         }
     }
 }

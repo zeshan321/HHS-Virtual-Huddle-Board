@@ -1,0 +1,45 @@
+﻿@model UnitsViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Units</h2>
+
+<div id="newUnitsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>ID</th>
+            <th>Department</th>
+        </tr>
+        <tr>
+            @foreach (var unit in Model.Units)
+            {
+                <tr>
+                    <td>@unit.ID</td>
+                    <td>@unit.Name</td>
+                </tr>
+            }
+        </tr>
+    </tbody>
+</table>
+
+<button type="button" class="btn btn-defaul" data-target="#newUnitsModal" data-toggle="modal">Create New Unit</button>
+

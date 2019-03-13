@@ -14,6 +14,8 @@ namespace HHSBoard.Data
             : base(options)
         {
         }
+        
+        public DbSet<Unit> Units { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

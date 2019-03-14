@@ -1,0 +1,100 @@
+﻿@model UnitsViewModel
+
+@{
+    ViewData["Title"] = "Units";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#createUnitForm").submit(function (e) {
+            var unitName = $('#name').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Units/AddNewUnit",
+                data: { name: unitName },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully created unit.'
+                    }, {
+                        type: 'success'
+                        });
+                    $("#tableBody").append("<tr>" +
+                        "<td> " + data.id + "</td>" +
+                        "<td>" + data.name + "</td>" +
+                        "<td>" +
+                        "<button data-id='" + data.id + "' class='btn btn-danger'><i class='fa fa-trash'></i></button>" +
+                        "<button data-id='" + data.id + "' class='btn btn-primary'><i class='fa fa-pencil-alt'></i></button>" +
+                        "</td>" +
+                        "</tr>");
+                    $('#newUnitsModal').modal('toggle');
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                        type: 'danger'
+                    });
+                }
+            });
+
+            return false;
+        })
+    })
+</script>
+
+<div class="container">
+    <h2>Units</h2>
+    <div id="newUnitsModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create a New Unit</h4>
+                </div>
+                <form id="createUnitForm" class="form-inline">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">Department Name:</label>
+                            <input type="text" class="form-control" id="name" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Department</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            @foreach (var unit in Model.Units)
+            {
+                <tr>
+                    <td>@unit.ID</td>
+                    <td>@unit.Name</td>
+                    <td>
+                        <button data-id="@unit.ID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                        <button data-id="@unit.ID" class="btn btn-primary"><i class="fa fa-pencil-alt"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<button class="btn floating-btn" data-target="#newUnitsModal" data-toggle="modal"><i class="fa fa-plus"></i></button>
+

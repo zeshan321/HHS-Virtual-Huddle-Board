@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HHSBoard.Models
 {
-    public class CreateUnit
+    public class CreateUnitModel
     {
         public string Name { get; set; }
     }

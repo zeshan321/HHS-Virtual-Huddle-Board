@@ -8,6 +8,7 @@ using HHSBoard.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HHSBoard.Controllers
 {
@@ -23,11 +24,11 @@ namespace HHSBoard.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             return View(new UnitsViewModel
             {
-                Units = _applicationDbContext.Units.ToList()
+                Units = await _applicationDbContext.Units.ToListAsync()
             });
         }
 

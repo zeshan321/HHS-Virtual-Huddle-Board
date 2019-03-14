@@ -4,25 +4,52 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Units</h2>
+<script type="text/javascript">
+    $(function () {
+        $("#submitButton").click(function () {
 
+            var unitName = $('#name').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Units/AddNewUnit",
+                data: { name: unitName },
+                success: function (data) {
+                    var response = JSON.parse(data);
+                },
+                error: function (data) {
+                    var response = JSON.parse(data);
+                }
+            });
+        })
+    })
+</script>
+
+<h2>Units</h2>
 <div id="newUnitsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">Create a New Unit</h4>
             </div>
             <div class="modal-body">
-                <p>Some text in the modal.</p>
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="name">Department Name:</label>
+                        <input type="text" class="form-control" id="name" />
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitButton">Submit</button>
             </div>
         </div>
     </div>
 </div>
+
 <table class="table table-striped">
     <tbody>
         <tr>
@@ -32,14 +59,14 @@
         <tr>
             @foreach (var unit in Model.Units)
             {
-                <tr>
-                    <td>@unit.ID</td>
-                    <td>@unit.Name</td>
-                </tr>
-            }
-        </tr>
-    </tbody>
-</table>
+            <tr>
+                <td>@unit.ID</td>
+                <td>@unit.Name</td>
+            </tr>
+        }
+            </tr>
+        </tbody>
+    </table>
 
-<button type="button" class="btn btn-defaul" data-target="#newUnitsModal" data-toggle="modal">Create New Unit</button>
+    <button class="btn btn-primary btn-circle btn-lg" data-target="#newUnitsModal" data-toggle="modal"><i class="glyphicon glyphicon-ok"></i></button>
 

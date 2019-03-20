@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using HHSBoard.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using HHSBoard.Models.HomeViewModels;
 
 namespace HHSBoard.Controllers
 {
@@ -29,21 +31,47 @@ namespace HHSBoard.Controllers
             var user = await _userManager.GetUserAsync(User);
             ViewBag.name = user.Email;
 
-            return View();
+            // TODO: Only show boards user has access to
+            return View(new HomeIndexViewModel
+            {
+                Units = await _applicationDbContext.Units.ToListAsync(),
+                Boards = await _applicationDbContext.Boards.ToListAsync()
+            });
         }
 
-        public IActionResult About()
+        [HttpPost]
+        public async Task<IActionResult> CreateBoard(CreateBoardModel createBoardModel)
         {
-            ViewData["Message"] = "Your application description page.";
+            var user = await _userManager.GetUserAsync(User);
 
-            return View();
-        }
+            if (string.IsNullOrWhiteSpace(createBoardModel.Name))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Invalid board name.");
+            }
 
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
+            var unit = _applicationDbContext.Units.Where(u => u.ID == createBoardModel.UnitID).SingleOrDefault();
+            if (unit == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Invalid unit selected.");
+            }
 
-            return View();
+            var board = _applicationDbContext.Boards.Where(b => b.UnitID == createBoardModel.UnitID && b.Name.ToUpperInvariant() == createBoardModel.Name.ToUpperInvariant());
+            if (board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"A board with that name exists in {unit.Name}");
+            }
+
+            var newBoard = (await _applicationDbContext.Boards.AddAsync(new Board
+            {
+                Name = createBoardModel.Name,
+                UnitID = createBoardModel.UnitID
+            })).Entity;
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json(newBoard);
         }
 
         public IActionResult Error()

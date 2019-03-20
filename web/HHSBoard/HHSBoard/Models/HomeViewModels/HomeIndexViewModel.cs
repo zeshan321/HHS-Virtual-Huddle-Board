@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HHSBoard.Models
+namespace HHSBoard.Models.HomeViewModels
 {
-    public class UnitsViewModel
+    public class HomeIndexViewModel
     {
         public List<Unit> Units { get; set; }
+
+        public List<Board> Boards { get; set; }
     }
 }

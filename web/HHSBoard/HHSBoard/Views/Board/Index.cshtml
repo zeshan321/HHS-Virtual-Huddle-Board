@@ -1,0 +1,15 @@
+﻿@model HHSBoard.Data.Board
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>@Model.Name</h2>
+
+@if (ViewBag.TableType == 0)
+{
+    @await Html.PartialAsync("_CelebrationTable")
+}
+else
+{
+    <h1>Error: No table type set.</h1>
+}

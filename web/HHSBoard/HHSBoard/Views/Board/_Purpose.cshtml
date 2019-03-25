@@ -4,6 +4,12 @@
     }
 </style>
 
+<script>
+    $(function () {
+        $('#purpose').wysihtml5();
+    });
+</script>
+
 <div class="dailyContainer">
     <h1>Daily Performance Huddle</h1>
     <h2>Business Rules</h2>
@@ -13,3 +19,36 @@
     </h4>
 </div>
 
+<!-- Modal -->
+<div id="newBoardModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <form id="updatePurposeForm">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit introduction:</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <textarea class="form-control" rows="5" id="purpose" required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red" data-target="#newBoardModal" data-toggle="modal">
+        <i class="fa fa-pen"></i>
+    </a>
+</div>

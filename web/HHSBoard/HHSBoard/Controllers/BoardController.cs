@@ -84,7 +84,12 @@ namespace HHSBoard.Controllers
             return PartialView();
         }
 
-        public enum TableType { CELEBRATION = 0 }
+        public PartialViewResult Purpose()
+        {
+            return PartialView();
+        }
+
+        public enum TableType { PURPOSE = 0, CELEBRATION = 1 }
 
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {

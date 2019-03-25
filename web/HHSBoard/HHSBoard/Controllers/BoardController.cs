@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HHSBoard.Data;
 using HHSBoard.Models;
 using HHSBoard.Models.BoardViewModels;
+using HHSBoard.Models.PurposeViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -87,6 +88,22 @@ namespace HHSBoard.Controllers
         public PartialViewResult Purpose()
         {
             return PartialView();
+        }
+
+        public async Task<IActionResult> UpdatePurpose(PurposeUpdateModel purposeUpdateModel)
+        {
+            var board = await _applicationDbContext.Boards.SingleOrDefaultAsync(b => b.ID == purposeUpdateModel.BoardID);
+            if (board == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Error board not found!");
+            }
+
+            var purpose = await _applicationDbContext.Purpose.SingleOrDefaultAsync(p => p.BoardID == purposeUpdateModel.BoardID);
+            purpose.Text = purposeUpdateModel.Text;
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Updated.");
         }
 
         public enum TableType { PURPOSE = 0, CELEBRATION = 1 }

@@ -10,6 +10,36 @@
         $('#purpose').wysihtml5();
 
         $(".dailyContainer").html($('#purpose').val());
+
+        $("#updatePurpose").submit(function (e) {
+            e.preventDefault();
+            console.log("SUBBBBBBBBBBBBBBBB");
+            $.ajax({
+                type: "POST",
+                url: "/Board/UpdatePurpose",
+                data: { BoardID: @Model.BoardID, Text: $('#purpose').val() },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully updated purpose.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    $(".dailyContainer").html($('#purpose').val());
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+            return false;
+        });
     });
 </script>
 
@@ -18,11 +48,11 @@
 </div>
 
 <!-- Modal -->
-<div id="newBoardModal" class="modal fade" role="dialog">
+<div id="newPurposeModel" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->
-        <form id="newPurposeModel">
+        <form id="updatePurpose">
 
             <div class="modal-content">
                 <div class="modal-header">

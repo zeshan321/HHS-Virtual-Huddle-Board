@@ -21,6 +21,10 @@ namespace HHSBoard.Data
 
         public DbSet<Celebration> Celebrations { get; set; }
 
+        public DbSet<Default> Defaults { get; set; }
+
+        public DbSet<Purpose> Purpose { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

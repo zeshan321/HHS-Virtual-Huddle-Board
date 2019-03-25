@@ -11,9 +11,10 @@ using System;
 namespace HHSBoard.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190325145609_Defaults")]
+    partial class Defaults
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,22 +72,6 @@ namespace HHSBoard.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Defaults");
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.Purpose", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BoardID");
-
-                    b.Property<string>("Text");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("BoardID");
-
-                    b.ToTable("Purpose");
                 });
 
             modelBuilder.Entity("HHSBoard.Data.Unit", b =>
@@ -270,14 +255,6 @@ namespace HHSBoard.Data.Migrations
                 });
 
             modelBuilder.Entity("HHSBoard.Data.Celebration", b =>
-                {
-                    b.HasOne("HHSBoard.Data.Board", "Board")
-                        .WithMany()
-                        .HasForeignKey("BoardID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.Purpose", b =>
                 {
                     b.HasOne("HHSBoard.Data.Board", "Board")
                         .WithMany()

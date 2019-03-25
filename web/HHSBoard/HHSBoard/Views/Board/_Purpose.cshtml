@@ -1,4 +1,5 @@
-﻿<style>
+﻿@model HHSBoard.Data.Purpose
+<style>
     .dailyContainer {
         text-align: center;
     }
@@ -7,16 +8,13 @@
 <script>
     $(function () {
         $('#purpose').wysihtml5();
+
+        $(".dailyContainer").html($('#purpose').val());
     });
 </script>
 
 <div class="dailyContainer">
-    <h1>Daily Performance Huddle</h1>
-    <h2>Business Rules</h2>
-    <br />
-    <h4>
-        <strong>THE PURPOSE:</strong> This daily performance huddle is focused on improvements, using the team's collective knowledge.   The huddle is designed to ensure daily communication and synthesis of unit improvement opportunities at various levels of progress.  This process is designed to engage staff in problem solving and making connections between the work and our goals.
-    </h4>
+
 </div>
 
 <!-- Modal -->
@@ -24,7 +22,7 @@
     <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->
-        <form id="updatePurposeForm">
+        <form id="newPurposeModel">
 
             <div class="modal-content">
                 <div class="modal-header">
@@ -34,7 +32,7 @@
 
                 <div class="modal-body">
                     <div class="form-group">
-                        <textarea class="form-control" rows="5" id="purpose" required></textarea>
+                        <textarea class="form-control" rows="5" id="purpose" required>@Model.Text</textarea>
                     </div>
                 </div>
 
@@ -48,7 +46,7 @@
 </div>
 
 <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red" data-target="#newBoardModal" data-toggle="modal">
+    <a class="btn-floating btn-large red" data-target="#newPurposeModel" data-toggle="modal">
         <i class="fa fa-pen"></i>
     </a>
 </div>

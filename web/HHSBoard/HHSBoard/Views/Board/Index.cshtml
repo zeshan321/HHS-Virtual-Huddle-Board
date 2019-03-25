@@ -1,11 +1,13 @@
 ﻿@model HHSBoard.Data.Board
+@inject HHSBoard.Data.ApplicationDbContext applicationDbContext
 @{
     ViewData["Title"] = "Index";
 }
 
 @if ((int)ViewBag.TableType == 0)
 {
-    @await Html.PartialAsync("_Purpose");
+    var purpose = applicationDbContext.Purpose.SingleOrDefault(p => p.BoardID == Model.ID);
+    @await Html.PartialAsync("_Purpose", purpose);
 }
 else if ((int)ViewBag.TableType == 1)
 {

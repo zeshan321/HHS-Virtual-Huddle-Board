@@ -3,11 +3,13 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>@Model.Name</h2>
-
-@if (ViewBag.TableType == 0)
+@if ((int)ViewBag.TableType == 0)
 {
-    @await Html.PartialAsync("_CelebrationTable")
+    @await Html.PartialAsync("_Purpose");
+}
+else if ((int)ViewBag.TableType == 1)
+{
+    @await Html.PartialAsync("_CelebrationTable");
 }
 else
 {

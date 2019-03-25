@@ -21,21 +21,41 @@
        data-search="true"
        data-mobile-responsive="true"
        data-check-on-init="true"
-       data-id-field="id",
-       data-editable-url="/Board/UpdateField?TableType=0"
+       data-id-field="id" ,
+       data-editable-url="/Board/UpdateField?TableType=1"
        data-show-toggle="true"
        data-show-refresh="true"
        data-auto-refresh="true"
        data-show-fullscreen="true"
        data-side-pagination="server"
-       data-url="/Board/GetTableData?TableType=0&BoardID=@ViewBag.BoardID">
+       data-maintain-selected="true"
+       data-url="/Board/GetTableData?TableType=1&BoardID=@ViewBag.BoardID">
     <thead>
         <tr>
+            <th data-field="state" data-checkbox="true"></th>
             <th data-field="id">ID</th>
             <th data-field="date" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-            <th data-field="who" data-editable="true">Who</th>
-            <th data-field="what" data-editable="true">What</th>
-            <th data-field="why" data-editable="true">Why</th>
+            <th data-field="who" data-editable="true" data-editable-type="textarea">Who</th>
+            <th data-field="what" data-editable="true" data-editable-type="textarea">What</th>
+            <th data-field="why" data-editable="true" data-editable-type="textarea">Why</th>
         </tr>
     </thead>
 </table>
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red">
+        <i class="fa fa-pen"></i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating bg-indigo">
+                <i class="fa fa-trash"></i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating bg-indigo">
+                <i class="fa fa-plus"></i>
+            </a>
+        </li>
+    </ul>
+</div>

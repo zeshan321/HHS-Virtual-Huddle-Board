@@ -47,3 +47,18 @@
     margin-top: 50px;
     margin-bottom: 50px;
 }
+
+/* Navigation buttons on board*/
+.btn-navigation-left {
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    margin-left: 5px;
+}
+
+.btn-navigation-right {
+    position: absolute;
+    bottom: 50%;
+    right: 0;
+    margin-right: 5px;
+}

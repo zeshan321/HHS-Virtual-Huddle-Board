@@ -4,6 +4,20 @@
     ViewData["Title"] = "Index";
 }
 
+<style>
+    #hhsFooter {
+        display: none;
+    }
+
+    .popover {
+        min-width: 400px;
+    }
+</style>
+
+<script>
+    //$.fn.editable.defaults.mode = 'inline';
+</script>
+
 @if ((int)ViewBag.TableType == 0)
 {
     var purpose = applicationDbContext.Purpose.SingleOrDefault(p => p.BoardID == Model.ID);

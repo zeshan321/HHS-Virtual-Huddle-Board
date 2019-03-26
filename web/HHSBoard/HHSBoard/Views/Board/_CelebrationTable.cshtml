@@ -4,6 +4,13 @@
 
     $(function () {
         $table = $('#table');
+
+        $.initialize("textarea", function () {
+            if ($(this).hasClass("form-control") && $(this).hasClass("input-large")) {
+                $(this).summernote();
+            }
+        });
+
         initTable();
     });
 
@@ -58,9 +65,9 @@
             <th data-field="state" data-checkbox="true"></th>
             <th data-field="id">ID</th>
             <th data-field="date" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-            <th data-field="who" data-editable="true" data-editable-type="wysihtml5">Who</th>
-            <th data-field="what" data-editable="true" data-editable-type="wysihtml5">What</th>
-            <th data-field="why" data-editable="true" data-editable-type="wysihtml5">Why</th>
+            <th data-field="who" data-editable="true" data-editable-type="textarea" data-editable-escape="false">Who</th>
+            <th data-field="what" data-editable="true" data-editable-type="textarea" data-editable-escape="false">What</th>
+            <th data-field="why" data-editable="true" data-editable-type="textarea" data-editable-escape="false">Why</th>
             <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
         </tr>
     </thead>

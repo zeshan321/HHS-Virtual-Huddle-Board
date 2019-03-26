@@ -75,6 +75,55 @@
     </thead>
 </table>
 
+<!-- Modal -->
+<div id="newCelebrationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <form id="createCelebrationForm">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create board</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="createDate">Date:</label>
+                        <div class="input-group date" data-provide="datepicker">
+                            <input id="createDate" type="text" class="form-control">
+                            <div class="input-group-addon">
+                                <span class="glyphicon glyphicon-th"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createWho">Who:</label>
+                        <textarea class="form-control" rows="5" id="createWho"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createWhat">What:</label>
+                        <textarea class="form-control" rows="5" id="createWhat"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createWhy">Why:</label>
+                        <textarea class="form-control" rows="5" id="createWhy"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
     <a class="btn-floating btn-large red">
         <i class="fa fa-pen"></i>
@@ -86,7 +135,7 @@
             </a>
         </li>
         <li>
-            <a class="btn-floating bg-indigo">
+            <a class="btn-floating bg-indigo" data-target="#newCelebrationModal" data-toggle="modal">
                 <i class="fa fa-plus"></i>
             </a>
         </li>

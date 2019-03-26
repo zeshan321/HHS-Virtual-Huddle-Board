@@ -1,4 +1,7 @@
 ﻿$.fn.editable.defaults.mode = 'inline';
+$.fn.editableform.buttons =
+    '<button type="submit" class="btn btn-primary editable-submit" style="margin-right: 10px;">Save</button>' +
+    '<button type="button" class="btn editable-cancel">Cancel</button>';   
 
 // List of registered tables in order.
 var tables = {

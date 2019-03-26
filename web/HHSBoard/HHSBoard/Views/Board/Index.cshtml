@@ -14,9 +14,10 @@
     }
 </style>
 
-<script>
-    $.fn.editable.defaults.mode = 'inline';
-</script>
+<script src="~/js/board.js"></script>
+
+<button id="navLeft" class="btn btn-primary btn-circle btn-lg btn-navigation-left"><i class="fa fa-arrow-left"></i></button>
+<button id="navRight" class="btn btn-primary btn-circle btn-lg btn-navigation-right"><i class="fa fa-arrow-right"></i></button>
 
 @if ((int)ViewBag.TableType == 0)
 {

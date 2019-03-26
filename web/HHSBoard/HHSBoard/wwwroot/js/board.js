@@ -24,6 +24,8 @@ $(function () {
 
     console.log(tableType);
     $("#navLeft").click(function () {
+        $(this).prop("disabled", true);
+
         if (typeof getUrlParameter("TableType") == 'undefined') {
             location.href = location.href + "&TableType=" + (tableType - 1);
         } else {
@@ -32,6 +34,8 @@ $(function () {
     });
 
     $("#navRight").click(function () {
+        $(this).prop("disabled", true);
+
         if (typeof getUrlParameter("TableType") == 'undefined') {
             location.href = location.href + "&TableType=" + (tableType + 1);
         } else {

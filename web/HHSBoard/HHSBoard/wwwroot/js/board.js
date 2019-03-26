@@ -24,10 +24,18 @@ $(function () {
 
     console.log(tableType);
     $("#navLeft").click(function () {
-        location.href = location.href.replace("TableType=" + tableType, "TableType=" + (tableType - 1));
+        if (typeof getUrlParameter("TableType") == 'undefined') {
+            location.href = location.href + "&TableType=" + (tableType - 1);
+        } else {
+            location.href = location.href.replace("TableType=" + tableType, "TableType=" + (tableType - 1));
+        }
     });
 
     $("#navRight").click(function () {
-        location.href = location.href.replace("TableType=" + tableType, "TableType=" + (tableType + 1));
+        if (typeof getUrlParameter("TableType") == 'undefined') {
+            location.href = location.href + "&TableType=" + (tableType + 1);
+        } else {
+            location.href = location.href.replace("TableType=" + tableType, "TableType=" + (tableType + 1));
+        }
     });
 });

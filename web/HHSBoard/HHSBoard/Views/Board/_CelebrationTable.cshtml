@@ -4,16 +4,39 @@
 
     $(function () {
         $table = $('#table');
-
         initTable();
     });
 
     function initTable() {
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+                alert('You click like action, row: ' + JSON.stringify(row))
+            },
+            'click .remove': function (e, value, row, index) {
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                })
+            }
+        }
+
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
-        })
+        });
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="remove btn btn-danger" href="javascript:void(0)" title="Remove">',
+            '<i class="fa fa-trash"></i>',
+            '</a>'
+        ].join('')
     }
 </script>
+
+<div class="page-header">
+    <h1>Celebrations</h1>
+</div>
 
 <table id="table"
        data-pagination="true"
@@ -35,9 +58,10 @@
             <th data-field="state" data-checkbox="true"></th>
             <th data-field="id">ID</th>
             <th data-field="date" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-            <th data-field="who" data-editable="true" data-editable-type="textarea">Who</th>
-            <th data-field="what" data-editable="true" data-editable-type="textarea">What</th>
-            <th data-field="why" data-editable="true" data-editable-type="textarea">Why</th>
+            <th data-field="who" data-editable="true" data-editable-type="wysihtml5">Who</th>
+            <th data-field="what" data-editable="true" data-editable-type="wysihtml5">What</th>
+            <th data-field="why" data-editable="true" data-editable-type="wysihtml5">Why</th>
+            <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
         </tr>
     </thead>
 </table>

@@ -1,13 +1,15 @@
 ﻿@model HHSBoard.Data.Purpose
 <style>
-    .dailyContainer {
-        text-align: center;
+    .wysihtml5-sandbox {
+        min-height: 500px;
     }
 </style>
 
 <script>
     $(function () {
-        $('#purpose').wysihtml5();
+        $('#purpose').summernote({
+            dialogsInBody: true
+        });
 
         $(".dailyContainer").html($('#purpose').val());
 

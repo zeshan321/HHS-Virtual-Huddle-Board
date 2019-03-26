@@ -101,7 +101,7 @@ namespace HHSBoard.Controllers
             }
 
             var purpose = await _applicationDbContext.Purpose.SingleOrDefaultAsync(p => p.BoardID == purposeUpdateModel.BoardID);
-            purpose.Text = purposeUpdateModel.Text;
+            purpose.Text = HttpUtility.HtmlEncode(purposeUpdateModel.Text);
 
             await _applicationDbContext.SaveChangesAsync();
             return Json("Updated.");

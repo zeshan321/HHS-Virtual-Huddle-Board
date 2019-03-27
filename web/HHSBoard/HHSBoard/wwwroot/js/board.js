@@ -26,7 +26,6 @@ $(function () {
         }
     }
 
-    console.log(tableType);
     $("#navLeft").click(function () {
         $(this).prop("disabled", true);
 

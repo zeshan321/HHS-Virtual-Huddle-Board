@@ -13,6 +13,12 @@
         });
 
         initTable();
+
+        // Make modal create fields editable
+        $("#createDate").editable();
+        $("#createWho").editable();
+        $("#createWhy").editable();
+        $("#createWhat").editable();
     });
 
     function initTable() {
@@ -85,39 +91,35 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Create board</h4>
+                    <h4 class="modal-title">Add celebration</h4>
                 </div>
 
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="createDate">Date:</label>
-                        <div class="input-group date" data-provide="datepicker">
-                            <input id="createDate" type="text" class="form-control">
-                            <div class="input-group-addon">
-                                <span class="glyphicon glyphicon-th"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="createWho">Who:</label>
-                        <textarea class="form-control" rows="5" id="createWho"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="createWhat">What:</label>
-                        <textarea class="form-control" rows="5" id="createWhat"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="createWhy">Why:</label>
-                        <textarea class="form-control" rows="5" id="createWhy"></textarea>
-                    </div>
+                    <table id="createCelebrationTable" class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Date</td>
+                                <td><a href="#" class="myeditable" id="createDate" data-type="combodate" data-name="createDob" data-template="D MMM YYYY  HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="MMM D, YYYY, HH:mm" data-original-title="Select Date of birth" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Who</td>
+                                <td><a href="#" class="myeditable" id="createWho" data-type="textarea" data-name="createWho" data-original-title="Enter who" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>What</td>
+                                <td><a href="#" class="myeditable" id="createWhat" data-type="textarea" data-name="createWhat" data-original-title="Enter what" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Why</td>
+                                <td><a href="#" class="myeditable" id="createWhy" data-type="textarea" data-name="createWhy" data-original-title="Enter why" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
                 </div>
             </div>
         </form>

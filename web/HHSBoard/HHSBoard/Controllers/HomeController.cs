@@ -70,6 +70,16 @@ namespace HHSBoard.Controllers
                 UnitID = createBoardModel.UnitID
             })).Entity;
 
+            // Create defaults for board
+            var defaultPurpose = _applicationDbContext.Defaults.Where(d => d.Field == "BussinessRules").SingleOrDefault().Value;
+            defaultPurpose = defaultPurpose.Replace("{{Name}}", createBoardModel.Name);
+
+            _applicationDbContext.Purpose.Add(new Purpose
+            {
+                BoardID = newBoard.ID,
+                Text = defaultPurpose
+            });
+
             await _applicationDbContext.SaveChangesAsync();
             return Json(newBoard);
         }

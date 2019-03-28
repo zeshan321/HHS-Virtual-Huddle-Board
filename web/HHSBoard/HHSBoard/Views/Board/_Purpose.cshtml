@@ -1,0 +1,84 @@
+﻿@model HHSBoard.Data.Purpose
+<style>
+    .wysihtml5-sandbox {
+        min-height: 500px;
+    }
+</style>
+
+<script>
+    $(function () {
+        $('#purpose').summernote({
+            dialogsInBody: true
+        });
+
+        $(".dailyContainer").html($('#purpose').val());
+
+        $("#updatePurpose").submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/UpdatePurpose",
+                data: { BoardID: @Model.BoardID, Text: $('#purpose').val() },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully updated purpose.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    $(".dailyContainer").html($('#purpose').val());
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
+<div class="dailyContainer">
+
+</div>
+
+<!-- Modal -->
+<div id="newPurposeModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <form id="updatePurpose">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit introduction:</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <textarea class="form-control" rows="5" id="purpose" required>@Model.Text</textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red" data-target="#newPurposeModel" data-toggle="modal">
+        <i class="fa fa-pen"></i>
+    </a>
+</div>

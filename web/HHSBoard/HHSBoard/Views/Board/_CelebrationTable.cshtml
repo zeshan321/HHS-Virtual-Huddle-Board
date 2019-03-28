@@ -1,0 +1,194 @@
+﻿<script>
+    var $table;
+    var selections = [];
+
+    $(function () {
+        $table = $('#table');
+
+        // Set textare as summernote when textarea dynamically added.
+        $.initialize("textarea", function () {
+            if ($(this).hasClass("form-control") && $(this).hasClass("input-large")) {
+                $(this).summernote();
+            }
+        });
+
+        initTable();
+
+        // Make modal create fields editable
+        $("#createDate").editable();
+        $("#createWho").editable();
+        $("#createWhy").editable();
+        $("#createWhat").editable();
+
+        // Reset editables
+        $('#reset').click(function () {
+            $('.createable').editable('setValue', null)
+                .editable('option', 'pk', null)
+                .removeClass('editable-unsaved');
+        });
+
+        $("#newCelebrationModal").submit(function () {
+            var createDate = $("#createDate").editable("getValue")["createDate"];
+            var createWho = $("#createWho").editable("getValue")["createWho"];
+            var createWhy = $("#createWhy").editable("getValue")["createWhy"];
+            var createWhat = $("#createWhat").editable("getValue")["createWhat"];
+
+            if (typeof createDate == 'undefined') {
+                $("#createDate").parent().append("<p id='createDateError' style='color: red'>This field is required!</p>")
+                return false;
+            } else {
+                $("#createDateError").remove();
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/AddCeleration",
+                data: { BoardID: @ViewBag.BoardID, Date: createDate, Who: createWho, Why: createWhy, What: createWhat },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully created celebration.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    location.reload();
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+
+            return false;
+        });
+    });
+
+    function initTable() {
+        window.operateEvents = {
+            'click .like': function (e, value, row, index) {
+                alert('You click like action, row: ' + JSON.stringify(row))
+            },
+            'click .remove': function (e, value, row, index) {
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                })
+            }
+        }
+
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        });
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="remove btn btn-danger" href="javascript:void(0)" title="Remove">',
+            '<i class="fa fa-trash"></i>',
+            '</a>'
+        ].join('')
+    }
+</script>
+
+<div class="page-header">
+    <h1>Celebrations</h1>
+</div>
+
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id" ,
+       data-editable-url="/Board/UpdateField?TableType=1"
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-maintain-selected="true"
+       data-url="/Board/GetTableData?TableType=1&BoardID=@ViewBag.BoardID">
+    <thead>
+        <tr>
+            <th data-field="state" data-checkbox="true"></th>
+            <th data-field="id" data-visible="false">ID</th>
+            <th data-field="date" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
+            <!-- For html textarea support escape must be false and onblur ignore. -->
+            <th data-field="who" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
+            <th data-field="what" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
+            <th data-field="why" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
+            <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Modal -->
+<div id="newCelebrationModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <form id="createCelebrationForm">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add celebration</h4>
+                </div>
+
+                <div class="modal-body">
+                    <table id="createCelebrationTable" class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <td style="width: 1px; white-space: nowrap;">Date *</td>
+                                <td><a href="#" class="createable" id="createDate" data-type="combodate" data-name="createDate" data-template="D MMM YYYY  HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="MMM D, YYYY, HH:mm" data-original-title="Select Date of birth" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Who</td>
+                                <td><a href="#" class="createable" id="createWho" data-type="textarea" data-name="createWho" data-original-title="Enter who" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>What</td>
+                                <td><a href="#" class="createable" id="createWhat" data-type="textarea" data-name="createWhat" data-original-title="Enter what" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Why</td>
+                                <td><a href="#" class="createable" id="createWhy" data-type="textarea" data-name="createWhy" data-original-title="Enter why" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="reset" type="button" class="btn btn-default">Reset</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red">
+        <i class="fa fa-pen"></i>
+    </a>
+    <ul>
+        <li>
+            <a class="btn-floating bg-indigo">
+                <i class="fa fa-trash"></i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating bg-indigo" data-target="#newCelebrationModal" data-toggle="modal">
+                <i class="fa fa-plus"></i>
+            </a>
+        </li>
+    </ul>
+</div>

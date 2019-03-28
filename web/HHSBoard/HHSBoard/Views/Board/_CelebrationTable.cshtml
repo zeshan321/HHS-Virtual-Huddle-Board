@@ -1,6 +1,5 @@
 ﻿<script>
     var $table;
-    var selections = [];
 
     $(function () {
         $table = $('#table');
@@ -67,18 +66,27 @@
 
             return false;
         });
+
+        $("#selectionRemove").click(function () {
+            var selections = $("table").bootstrapTable('getSelections');
+
+            for (var i = 0; i < selections.length; i++) {
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [selections[i].id]
+                });
+            }
+        });
     });
 
     function initTable() {
+        // Triggered when delete is pressed in table row
         window.operateEvents = {
-            'click .like': function (e, value, row, index) {
-                alert('You click like action, row: ' + JSON.stringify(row))
-            },
             'click .remove': function (e, value, row, index) {
                 $table.bootstrapTable('remove', {
                     field: 'id',
                     values: [row.id]
-                })
+                });
             }
         }
 
@@ -181,7 +189,7 @@
     </a>
     <ul>
         <li>
-            <a class="btn-floating bg-indigo">
+            <a id="selectionRemove" class="btn-floating bg-indigo">
                 <i class="fa fa-trash"></i>
             </a>
         </li>

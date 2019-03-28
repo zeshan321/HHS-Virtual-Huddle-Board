@@ -26,6 +26,47 @@
                 .editable('option', 'pk', null)
                 .removeClass('editable-unsaved');
         });
+
+        $("#newCelebrationModal").submit(function () {
+            var createDate = $("#createDate").editable("getValue")["createDate"];
+            var createWho = $("#createWho").editable("getValue")["createWho"];
+            var createWhy = $("#createWhy").editable("getValue")["createWhy"];
+            var createWhat = $("#createWhat").editable("getValue")["createWhat"];
+
+            if (typeof createDate == 'undefined') {
+                $("#createDate").parent().append("<p id='createDateError' style='color: red'>This field is required!</p>")
+                return false;
+            } else {
+                $("#createDateError").remove();
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/AddCeleration",
+                data: { BoardID: @ViewBag.BoardID, Date: createDate, Who: createWho, Why: createWhy, What: createWhat },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully created celebration.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    location.reload();
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+
+            return false;
+        });
     });
 
     function initTable() {
@@ -105,8 +146,8 @@
                     <table id="createCelebrationTable" class="table table-bordered table-striped">
                         <tbody>
                             <tr>
-                                <td style="width: 1px; white-space: nowrap;">Date</td>
-                                <td><a href="#" class="createable" id="createDate" data-type="combodate" data-name="createDob" data-template="D MMM YYYY  HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="MMM D, YYYY, HH:mm" data-original-title="Select Date of birth" data-onblur="ignore"></a></td>
+                                <td style="width: 1px; white-space: nowrap;">Date *</td>
+                                <td><a href="#" class="createable" id="createDate" data-type="combodate" data-name="createDate" data-template="D MMM YYYY  HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="MMM D, YYYY, HH:mm" data-original-title="Select Date of birth" data-onblur="ignore"></a></td>
                             </tr>
                             <tr>
                                 <td>Who</td>

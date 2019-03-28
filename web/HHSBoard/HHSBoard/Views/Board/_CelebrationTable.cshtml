@@ -1,4 +1,5 @@
-﻿<script>
+﻿<script src="~/lib/jquery-effects/confetti/jquery.confetti.js"></script>
+<script>
     var $table;
     var selections = [];
 
@@ -67,6 +68,13 @@
 
             return false;
         });
+
+        // Confetti
+        $.confetti.start();
+
+        setTimeout(function () {
+            $.confetti.stop();
+        }, 2400);
     });
 
     function initTable() {

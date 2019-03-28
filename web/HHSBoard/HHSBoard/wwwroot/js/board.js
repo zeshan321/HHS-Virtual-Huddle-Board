@@ -7,7 +7,8 @@ $.fn.combodate.defaults.maxYear = new Date().getFullYear();
 // List of registered tables in order.
 var tables = {
     PURPOSE: 0,
-    CELEBRATION: 1
+    CELEBRATION: 1,
+    WIP: 2
 };
 
 $(function () {

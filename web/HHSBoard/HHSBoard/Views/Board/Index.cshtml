@@ -28,6 +28,10 @@ else if ((int)ViewBag.TableType == 1)
 {
     @await Html.PartialAsync("_CelebrationTable");
 }
+else if ((int)ViewBag.TableType == 2)
+{
+    @await Html.PartialAsync("_WIPTable");
+}
 else
 {
     <h1>Error: No table type set.</h1>

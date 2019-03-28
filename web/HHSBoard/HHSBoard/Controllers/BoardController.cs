@@ -8,6 +8,7 @@ using System.Web;
 using HHSBoard.Data;
 using HHSBoard.Models;
 using HHSBoard.Models.BoardViewModels;
+using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,35 @@ namespace HHSBoard.Controllers
             }
 
             return Json("No table found.");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCeleration(CreateCelebrationModel createCelebrationModel)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == createCelebrationModel.BoardID);
+            if (!board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"No board found.");
+            }
+
+            if (!createCelebrationModel.Date.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            _applicationDbContext.Celebrations.Add(new Celebration
+            {
+                Who = createCelebrationModel.Who??HttpUtility.HtmlEncode(createCelebrationModel.Who),
+                What = createCelebrationModel.What??HttpUtility.HtmlEncode(createCelebrationModel.What),
+                Why = createCelebrationModel.Why??HttpUtility.HtmlEncode(createCelebrationModel.Why),
+                Date = createCelebrationModel.Date.Value,
+                BoardID = createCelebrationModel.BoardID
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Created");
         }
 
 

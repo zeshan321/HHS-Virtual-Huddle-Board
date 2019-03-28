@@ -121,6 +121,11 @@ namespace HHSBoard.Controllers
             return PartialView();
         }
 
+        public PartialViewResult WIPTable()
+        {
+            return PartialView();
+        }
+
         public async Task<IActionResult> UpdatePurpose(PurposeUpdateModel purposeUpdateModel)
         {
             var board = await _applicationDbContext.Boards.SingleOrDefaultAsync(b => b.ID == purposeUpdateModel.BoardID);
@@ -137,7 +142,7 @@ namespace HHSBoard.Controllers
             return Json("Updated.");
         }
 
-        public enum TableType { PURPOSE = 0, CELEBRATION = 1 }
+        public enum TableType { PURPOSE = 0, CELEBRATION = 1, WIP = 2 }
 
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {

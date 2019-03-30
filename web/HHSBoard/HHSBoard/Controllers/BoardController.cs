@@ -10,6 +10,7 @@ using HHSBoard.Models;
 using HHSBoard.Models.BoardViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
+using HHSBoard.Models.WipViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,9 +44,15 @@ namespace HHSBoard.Controllers
             switch(boardTableViewModel.TableType)
             {
                 case TableType.CELEBRATION:
-                    var data = await GetViewModel<CelebrationViewModel>(boardTableViewModel);
+                    var celebrationData = await GetViewModel<CelebrationViewModel>(boardTableViewModel);
 
-                    return Json(data);
+                    return Json(celebrationData);
+
+                case TableType.WIP:
+                    var wipData = await GetViewModel<WIPViewModel>(boardTableViewModel);
+
+                    return Json(wipData);
+                    
             }
 
             return Json("No table found.");
@@ -84,27 +91,42 @@ namespace HHSBoard.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateField(FieldUpdateModel fieldUpdateModel)
         {
-            switch (fieldUpdateModel.TableType)
+            if (fieldUpdateModel.TableType == TableType.CELEBRATION)
             {
-                case TableType.CELEBRATION:
-                    var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                    var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    var converted = ConvertType(proptery, fieldUpdateModel.Value);
+                var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var converted = ConvertType(proptery, fieldUpdateModel.Value);
 
-                    if (converted != null)
-                    {
-                        proptery.SetValue(celebration, Convert.ChangeType(converted, proptery.PropertyType), null);
-                    }
-                    else
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
-                    }
-                    
-                    break;
-                default:
+                if (converted != null)
+                {
+                    proptery.SetValue(celebration, Convert.ChangeType(converted, proptery.PropertyType), null);
+                }
+                else
+                {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json("No table found.");
+                    return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
+                }
+            }
+            else if (fieldUpdateModel.TableType == TableType.WIP)
+            {
+                var wip = await _applicationDbContext.WIPs.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = wip.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var converted = ConvertType(proptery, fieldUpdateModel.Value);
+
+                if (converted != null)
+                {
+                    proptery.SetValue(wip, Convert.ChangeType(converted, proptery.PropertyType), null);
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json($"Invalid value format for {TableType.WIP.ToString()}");
+                }
+            }
+            else
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No table found.");
             }
 
             await _applicationDbContext.SaveChangesAsync();
@@ -156,6 +178,19 @@ namespace HHSBoard.Controllers
                 {
                     Total = total,
                     Celebrations = data
+                };
+            }
+
+            if (boardTableViewModel.TableType == TableType.WIP)
+            {
+                var table = _applicationDbContext.WIPs.Where(c => c.BoardID == boardTableViewModel.BoardID);
+                var total = await table.CountAsync();
+                var data = await table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit).ToListAsync();
+
+                return new WIPViewModel
+                {
+                    Total = total,
+                    WIPs = data
                 };
             }
 

@@ -1,8 +1,71 @@
-﻿<div class="page-header">
+﻿<script>
+    var $table;
+
+    $(function () {
+        $table = $('#table');
+
+        // Set textare as summernote when textarea dynamically added.
+        $.initialize("textarea", function () {
+            if ($(this).hasClass("form-control") && $(this).hasClass("input-large")) {
+                $(this).summernote();
+            }
+        });
+
+        initTable();
+    });
+
+    function initTable() {
+        // Triggered when delete is pressed in table row
+        window.operateEvents = {
+            'click .remove': function (e, value, row, index) {
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: [row.id]
+                });
+            }
+        }
+
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        });
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="remove btn btn-danger" href="javascript:void(0)" title="Remove">',
+            '<i class="fa fa-trash"></i>',
+            '</a>'
+        ].join('')
+    }
+</script>
+
+<div class="page-header">
     <h1>Work In Progress</h1>
 </div>
 
-
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id" ,
+       data-editable-url="/Board/UpdateField?TableType=2"
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-maintain-selected="true"
+       data-url="/Board/GetTableData?TableType=2&BoardID=@ViewBag.BoardID">
+    <thead>
+        <tr>
+            <th data-field="state" data-checkbox="true"></th>
+            <th data-field="id" data-visible="false">ID</th>
+            <th data-field="saftey" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
+        </tr>
+    </thead>
+</table>
 
 <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
     <a class="btn-floating btn-large red">

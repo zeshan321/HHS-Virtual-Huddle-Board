@@ -12,9 +12,10 @@ using System;
 namespace HHSBoard.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190328165456_WIP")]
+    partial class WIP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +113,7 @@ namespace HHSBoard.Data.Migrations
 
                     b.Property<DateTime>("Date");
 
-                    b.Property<DateTime?>("DateAssigned");
+                    b.Property<DateTime>("DateAssigned");
 
                     b.Property<DateTime?>("DateCreated");
 
@@ -126,7 +127,7 @@ namespace HHSBoard.Data.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<int?>("PickChart");
+                    b.Property<int>("PickChart");
 
                     b.Property<string>("Problem");
 

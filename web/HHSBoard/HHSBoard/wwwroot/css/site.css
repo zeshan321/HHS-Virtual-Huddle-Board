@@ -41,24 +41,24 @@
         border-radius: 35px;
     }
 
-/* Circular floating button */
-.floating-btn {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: royalblue;
-    color: white;
-    width: 50px;
-    height: 50px;
-    padding: 10px 16px;
-    font-size: 18px;
-    line-height: 1.33;
-    border-radius: 25px;
-}
-
 /* Board home page */
 .board-name-text {
     text-align: center;
     margin-top: 50px;
     margin-bottom: 50px;
+}
+
+/* Navigation buttons on board*/
+.btn-navigation-left {
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    margin-left: 5px;
+}
+
+.btn-navigation-right {
+    position: absolute;
+    bottom: 50%;
+    right: 0;
+    margin-right: 5px;
 }

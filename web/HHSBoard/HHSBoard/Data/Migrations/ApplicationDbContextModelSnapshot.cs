@@ -37,6 +37,58 @@ namespace HHSBoard.Data.Migrations
                     b.ToTable("Boards");
                 });
 
+            modelBuilder.Entity("HHSBoard.Data.Celebration", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("BoardID");
+
+                    b.Property<DateTime>("Date");
+
+                    b.Property<string>("What");
+
+                    b.Property<string>("Who");
+
+                    b.Property<string>("Why");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("BoardID");
+
+                    b.ToTable("Celebrations");
+                });
+
+            modelBuilder.Entity("HHSBoard.Data.Default", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Field");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Defaults");
+                });
+
+            modelBuilder.Entity("HHSBoard.Data.Purpose", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("BoardID");
+
+                    b.Property<string>("Text");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("BoardID");
+
+                    b.ToTable("Purpose");
+                });
+
             modelBuilder.Entity("HHSBoard.Data.Unit", b =>
                 {
                     b.Property<int>("ID")
@@ -214,6 +266,22 @@ namespace HHSBoard.Data.Migrations
                     b.HasOne("HHSBoard.Data.Unit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HHSBoard.Data.Celebration", b =>
+                {
+                    b.HasOne("HHSBoard.Data.Board", "Board")
+                        .WithMany()
+                        .HasForeignKey("BoardID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HHSBoard.Data.Purpose", b =>
+                {
+                    b.HasOne("HHSBoard.Data.Board", "Board")
+                        .WithMany()
+                        .HasForeignKey("BoardID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

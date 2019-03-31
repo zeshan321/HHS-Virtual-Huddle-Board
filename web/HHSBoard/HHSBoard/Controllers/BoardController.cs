@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using HHSBoard.Data;
+using HHSBoard.Helpers;
 using HHSBoard.Models;
 using HHSBoard.Models.BoardViewModels;
 using HHSBoard.Models.CelebrationViewModels;
@@ -95,11 +96,15 @@ namespace HHSBoard.Controllers
             {
                 var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
                 var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var converted = ConvertType(proptery, fieldUpdateModel.Value);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
 
                 if (converted != null)
                 {
-                    proptery.SetValue(celebration, Convert.ChangeType(converted, proptery.PropertyType), null);
+                    proptery.SetValue(celebration, Convert.ChangeType(converted, memberType), null);
                 }
                 else
                 {
@@ -111,11 +116,15 @@ namespace HHSBoard.Controllers
             {
                 var wip = await _applicationDbContext.WIPs.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
                 var proptery = wip.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var converted = ConvertType(proptery, fieldUpdateModel.Value);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
 
                 if (converted != null)
                 {
-                    proptery.SetValue(wip, Convert.ChangeType(converted, proptery.PropertyType), null);
+                    proptery.SetValue(wip, Convert.ChangeType(converted, memberType), null);
                 }
                 else
                 {
@@ -202,9 +211,9 @@ namespace HHSBoard.Controllers
             return (T)await GetViewModel(boardTableViewModel);
         }
 
-        public object ConvertType(PropertyInfo propertyInfo, string value)
+        public object ConvertType(Type type, string value)
         {
-            if (propertyInfo.PropertyType == typeof(DateTime))
+            if (type == typeof(DateTime))
             {
                 if (DateTime.TryParse(value, out DateTime date))
                 {
@@ -212,6 +221,10 @@ namespace HHSBoard.Controllers
                 }
 
                 return null;
+            }
+            else if (type == typeof(PickChart))
+            {
+                return (PickChart) int.Parse(value);
             }
             else
             {

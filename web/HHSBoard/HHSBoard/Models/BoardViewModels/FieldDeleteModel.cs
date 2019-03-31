@@ -7,11 +7,10 @@ using static HHSBoard.Controllers.BoardController;
 
 namespace HHSBoard.Models.CelebrationViewModels
 {
-    public class FieldUpdateModel
+    public class FieldDeleteModel
     {
-        public int Pk { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public List<int> Delete { get; set; }
+
         public TableType TableType { get; set; }
-     }
+    }
 }

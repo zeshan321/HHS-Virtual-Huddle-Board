@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HHSBoard.Models.BoardViewModels
+namespace HHSBoard.Models.WipViewModels
 {
-    public class CelebrationViewModel
+    public class WIPViewModel
     {
         public int Total { get; set; }
 
         [JsonProperty("rows")]
-        public List<Celebration> Celebrations { get; set; }
+        public List<WIP> WIPs { get; set; }
     }
 }

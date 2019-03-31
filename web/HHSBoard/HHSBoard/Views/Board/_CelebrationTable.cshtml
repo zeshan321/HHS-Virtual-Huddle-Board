@@ -71,13 +71,45 @@
 
         $("#selectionRemove").click(function () {
             var selections = $("table").bootstrapTable('getSelections');
-
+            var ids = [];
             for (var i = 0; i < selections.length; i++) {
-                $table.bootstrapTable('remove', {
-                    field: 'id',
-                    values: [selections[i].id]
-                });
+                ids.push(selections[i].id);
             }
+            
+            deleteFields(ids);
+        });
+
+        $("#confirmDelete").click(function () {
+            $.ajax({
+            type: "POST",
+            url: "/Board/DeleteFields",
+            data: {
+                BoardID: @ViewBag.BoardID, TableType: 1, Delete: globalDeleteList },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully deleted.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    $table.bootstrapTable('remove', {
+                        field: 'id',
+                        values: globalDeleteList
+                    });
+
+                    $("#deleteModal").modal("hide");
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
         });
 
         // Confetti
@@ -92,10 +124,7 @@
         // Triggered when delete is pressed in table row
         window.operateEvents = {
             'click .remove': function (e, value, row, index) {
-                $table.bootstrapTable('remove', {
-                    field: 'id',
-                    values: [row.id]
-                });
+                deleteFields([row.id]);
             }
         }
 
@@ -110,6 +139,23 @@
             '<i class="fa fa-trash"></i>',
             '</a>'
         ].join('')
+    }
+
+    var globalDeleteList;
+    function deleteFields(list) {
+        globalDeleteList = list;
+
+        if (globalDeleteList.length > 0) {
+            $("#deleteModal").modal("show");
+
+            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> records?");
+        } else {
+            $.notify({
+                message: "No records selected to be deleted."
+            }, {
+                    type: 'danger'
+            });
+        }
     }
 </script>
 
@@ -134,14 +180,14 @@
        data-url="/Board/GetTableData?TableType=1&BoardID=@ViewBag.BoardID">
     <thead>
         <tr>
-            <th data-field="state" data-checkbox="true"></th>
-            <th data-field="id" data-visible="false">ID</th>
-            <th data-field="date" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
+            <th data-field="state" class="fit" data-checkbox="true"></th>
+            <th data-field="id" class="fit" data-visible="false">ID</th>
+            <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
             <!-- For html textarea support escape must be false and onblur ignore. -->
-            <th data-field="who" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
-            <th data-field="what" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
-            <th data-field="why" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
-            <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents"></th>
+            <th data-field="who" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
+            <th data-field="what" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
+            <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
+            <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
         </tr>
     </thead>
 </table>
@@ -189,6 +235,27 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Are you sure you want to delete?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="deleteModalText" style="text-align: center;">Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="confirmDelete" type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+
     </div>
 </div>
 

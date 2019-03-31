@@ -3,11 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <UserSecretsId>aspnet-HHSBoard-D44FDF08-269D-4160-B124-78144506D07F</UserSecretsId>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Data\Migrations\20190312195528_UnitsTable.cs" />
     <Compile Remove="Data\Migrations\20190312195528_UnitsTable.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190331214247_GoalsEnum.cs" />
+    <Compile Remove="Data\Migrations\20190331214247_GoalsEnum.Designer.cs" />
   </ItemGroup>
 
 

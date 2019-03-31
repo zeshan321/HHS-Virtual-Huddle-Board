@@ -62,3 +62,9 @@
     right: 0;
     margin-right: 5px;
 }
+
+.table td.fit,
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}

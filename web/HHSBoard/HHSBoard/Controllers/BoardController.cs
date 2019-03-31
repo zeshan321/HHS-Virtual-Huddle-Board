@@ -8,7 +8,7 @@ using System.Web;
 using HHSBoard.Data;
 using HHSBoard.Helpers;
 using HHSBoard.Models;
-using HHSBoard.Models.BoardViewModels;
+using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
@@ -88,6 +88,37 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
+        {
+            if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No fields sent to be deleted.");
+            }
+
+            if (fieldDeleteModel.TableType == TableType.CELEBRATION)
+            {
+                var celebrations = _applicationDbContext.Celebrations.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.Celebrations.RemoveRange(celebrations);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else if (fieldDeleteModel.TableType == TableType.WIP)
+            {
+                var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.WIPs.RemoveRange(wip);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No table found.");
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Deleted.");
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(FieldUpdateModel fieldUpdateModel)
@@ -172,8 +203,6 @@ namespace HHSBoard.Controllers
             await _applicationDbContext.SaveChangesAsync();
             return Json("Updated.");
         }
-
-        public enum TableType { PURPOSE = 0, CELEBRATION = 1, WIP = 2 }
 
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {

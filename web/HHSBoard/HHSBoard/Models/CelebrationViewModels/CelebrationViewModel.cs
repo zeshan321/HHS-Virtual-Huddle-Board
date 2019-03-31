@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HHSBoard.Models.BoardViewModels
+namespace HHSBoard.Models.CelebrationViewModels
 {
     public class CelebrationViewModel
     {

@@ -100,6 +100,7 @@ namespace HHSBoard
             });
 
             CreateRolesandUsersAsync(services).Wait();
+            CreateDefaults(services).Wait();
         }
 
         private async Task CreateRolesandUsersAsync(IServiceProvider serviceProvider)
@@ -118,6 +119,25 @@ namespace HHSBoard
                     roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
                 }
             }
+        }
+
+        private async Task CreateDefaults(IServiceProvider serviceProvider)
+        {
+            var db = serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // Clear defaults in case of update
+            db.Defaults.RemoveRange(db.Defaults);
+            await db.SaveChangesAsync();
+
+            // Add defaults
+            db.Defaults.Add(new Default
+            {
+                Field = "BussinessRules",
+                Value = "<h1>Daily Performance Huddle</h1><h2>Business Rules</h2><h3>{{Name}}</h3><br><h4><b>THE PURPOSE:</b> This daily performance huddle is focused on improvements, using the team's collective knowledge. The huddle is designed to ensure daily communication and synthesis of unit improvement opportunities at various levels of progress. This process is designed to engage staff in problem solving and making connections between the work and our goals.</h4>"
+            });
+
+            // Save
+            await db.SaveChangesAsync();
         }
     }
 }

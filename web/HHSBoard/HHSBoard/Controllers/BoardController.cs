@@ -12,6 +12,7 @@ using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
+using HHSBoard.Models.WIPViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -82,6 +83,44 @@ namespace HHSBoard.Controllers
                 Why = createCelebrationModel.Why??HttpUtility.HtmlEncode(createCelebrationModel.Why),
                 Date = createCelebrationModel.Date.Value,
                 BoardID = createCelebrationModel.BoardID
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Created");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddWIP(CreateWipModel createWipModel)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == createWipModel.BoardID);
+            if (!board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"No board found.");
+            }
+
+            if (!createWipModel.Date.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            _applicationDbContext.WIPs.Add(new WIP
+            {
+                BoardID = createWipModel.BoardID,
+                Saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey),
+                Name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name),
+                Date = createWipModel.Date.Value,
+                Problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem),
+                EightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs),
+                StrategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals),
+                IsPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity,
+                PickChart = createWipModel.PickChart,
+                DateAssigned = createWipModel.DateAssigned,
+                StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity),
+                Why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why),
+                JustDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt),
+                Updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates)
             });
 
             await _applicationDbContext.SaveChangesAsync();

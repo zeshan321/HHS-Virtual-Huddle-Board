@@ -6,10 +6,13 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using HHSBoard.Data;
+using HHSBoard.Helpers;
 using HHSBoard.Models;
-using HHSBoard.Models.BoardViewModels;
+using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
+using HHSBoard.Models.WipViewModels;
+using HHSBoard.Models.WIPViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,9 +46,15 @@ namespace HHSBoard.Controllers
             switch(boardTableViewModel.TableType)
             {
                 case TableType.CELEBRATION:
-                    var data = await GetViewModel<CelebrationViewModel>(boardTableViewModel);
+                    var celebrationData = await GetViewModel<CelebrationViewModel>(boardTableViewModel);
 
-                    return Json(data);
+                    return Json(celebrationData);
+
+                case TableType.WIP:
+                    var wipData = await GetViewModel<WIPViewModel>(boardTableViewModel);
+
+                    return Json(wipData);
+                    
             }
 
             return Json("No table found.");
@@ -80,31 +89,123 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddWIP(CreateWipModel createWipModel)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == createWipModel.BoardID);
+            if (!board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"No board found.");
+            }
+
+            if (!createWipModel.Date.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            _applicationDbContext.WIPs.Add(new WIP
+            {
+                BoardID = createWipModel.BoardID,
+                Saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey),
+                Name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name),
+                Date = createWipModel.Date.Value,
+                Problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem),
+                EightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs),
+                StrategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals),
+                IsPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity,
+                PickChart = createWipModel.PickChart,
+                DateAssigned = createWipModel.DateAssigned,
+                StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity),
+                Why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why),
+                JustDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt),
+                Updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates)
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Created");
+        }
+
+        public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
+        {
+            if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No fields sent to be deleted.");
+            }
+
+            if (fieldDeleteModel.TableType == TableType.CELEBRATION)
+            {
+                var celebrations = _applicationDbContext.Celebrations.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.Celebrations.RemoveRange(celebrations);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else if (fieldDeleteModel.TableType == TableType.WIP)
+            {
+                var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.WIPs.RemoveRange(wip);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No table found.");
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Deleted.");
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(FieldUpdateModel fieldUpdateModel)
         {
-            switch (fieldUpdateModel.TableType)
+            if (fieldUpdateModel.TableType == TableType.CELEBRATION)
             {
-                case TableType.CELEBRATION:
-                    var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                    var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    var converted = ConvertType(proptery, fieldUpdateModel.Value);
+                var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
 
-                    if (converted != null)
-                    {
-                        proptery.SetValue(celebration, Convert.ChangeType(converted, proptery.PropertyType), null);
-                    }
-                    else
-                    {
-                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
-                    }
-                    
-                    break;
-                default:
+                if (converted != null)
+                {
+                    proptery.SetValue(celebration, Convert.ChangeType(converted, memberType), null);
+                }
+                else
+                {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json("No table found.");
+                    return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
+                }
+            }
+            else if (fieldUpdateModel.TableType == TableType.WIP)
+            {
+                var wip = await _applicationDbContext.WIPs.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = wip.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+
+                if (converted != null)
+                {
+                    proptery.SetValue(wip, Convert.ChangeType(converted, memberType), null);
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json($"Invalid value format for {TableType.WIP.ToString()}");
+                }
+            }
+            else
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No table found.");
             }
 
             await _applicationDbContext.SaveChangesAsync();
@@ -117,6 +218,11 @@ namespace HHSBoard.Controllers
         }
 
         public PartialViewResult Purpose()
+        {
+            return PartialView();
+        }
+
+        public PartialViewResult WIPTable()
         {
             return PartialView();
         }
@@ -137,8 +243,6 @@ namespace HHSBoard.Controllers
             return Json("Updated.");
         }
 
-        public enum TableType { PURPOSE = 0, CELEBRATION = 1 }
-
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {
             if (boardTableViewModel.TableType == TableType.CELEBRATION)
@@ -154,6 +258,19 @@ namespace HHSBoard.Controllers
                 };
             }
 
+            if (boardTableViewModel.TableType == TableType.WIP)
+            {
+                var table = _applicationDbContext.WIPs.Where(c => c.BoardID == boardTableViewModel.BoardID);
+                var total = await table.CountAsync();
+                var data = await table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit).ToListAsync();
+
+                return new WIPViewModel
+                {
+                    Total = total,
+                    WIPs = data
+                };
+            }
+
             return null;
         }
 
@@ -162,9 +279,9 @@ namespace HHSBoard.Controllers
             return (T)await GetViewModel(boardTableViewModel);
         }
 
-        public object ConvertType(PropertyInfo propertyInfo, string value)
+        public object ConvertType(Type type, string value)
         {
-            if (propertyInfo.PropertyType == typeof(DateTime))
+            if (type == typeof(DateTime))
             {
                 if (DateTime.TryParse(value, out DateTime date))
                 {
@@ -172,6 +289,14 @@ namespace HHSBoard.Controllers
                 }
 
                 return null;
+            }
+            else if (type == typeof(PickChart))
+            {
+                return (PickChart) int.Parse(value);
+            }
+            else if (type == typeof(bool))
+            {
+                return int.Parse(value);
             }
             else
             {

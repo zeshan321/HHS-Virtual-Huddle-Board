@@ -226,6 +226,10 @@ namespace HHSBoard.Controllers
             {
                 return (PickChart) int.Parse(value);
             }
+            else if (type == typeof(bool))
+            {
+                return int.Parse(value);
+            }
             else
             {
                 return HttpUtility.HtmlEncode(value);

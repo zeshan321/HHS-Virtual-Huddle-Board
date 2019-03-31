@@ -47,16 +47,17 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                     <li>
-                        @if (User.Identity.IsAuthenticated)
+                        @*@if (User.Identity.IsAuthenticated)
                         {
                             @if (User.IsInRole("Admin"))
-                            {
-                                <a asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
-                            }
-                        }
+                            {*@
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a asp-controller="Units" asp-action="Index" id="top-link" class="skel-layers-ignoreHref">Unit</a></li>
+                                </ul>
+                            @*}
+                        }*@
 
                     </li>
                 </ul>
@@ -74,7 +75,7 @@
             </footer>
         </div>
     </div>
-    
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

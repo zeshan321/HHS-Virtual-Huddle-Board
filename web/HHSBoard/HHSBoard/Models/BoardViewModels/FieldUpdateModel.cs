@@ -1,9 +1,4 @@
 ﻿using HHSBoard.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using static HHSBoard.Controllers.BoardController;
 
 namespace HHSBoard.Models.CelebrationViewModels
 {
@@ -13,5 +8,5 @@ namespace HHSBoard.Models.CelebrationViewModels
         public string Name { get; set; }
         public string Value { get; set; }
         public TableType TableType { get; set; }
-     }
+    }
 }

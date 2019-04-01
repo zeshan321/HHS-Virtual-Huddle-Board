@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
-using HHSBoard.Data;
+﻿using HHSBoard.Data;
 using HHSBoard.Helpers;
 using HHSBoard.Models;
-using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
@@ -17,6 +9,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace HHSBoard.Controllers
 {
@@ -43,7 +41,7 @@ namespace HHSBoard.Controllers
 
         public async Task<IActionResult> GetTableData(BoardTableModel boardTableViewModel)
         {
-            switch(boardTableViewModel.TableType)
+            switch (boardTableViewModel.TableType)
             {
                 case TableType.CELEBRATION:
                     var celebrationData = await GetViewModel<CelebrationViewModel>(boardTableViewModel);
@@ -54,7 +52,6 @@ namespace HHSBoard.Controllers
                     var wipData = await GetViewModel<WIPViewModel>(boardTableViewModel);
 
                     return Json(wipData);
-                    
             }
 
             return Json("No table found.");
@@ -78,9 +75,9 @@ namespace HHSBoard.Controllers
 
             _applicationDbContext.Celebrations.Add(new Celebration
             {
-                Who = createCelebrationModel.Who??HttpUtility.HtmlEncode(createCelebrationModel.Who),
-                What = createCelebrationModel.What??HttpUtility.HtmlEncode(createCelebrationModel.What),
-                Why = createCelebrationModel.Why??HttpUtility.HtmlEncode(createCelebrationModel.Why),
+                Who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who),
+                What = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What),
+                Why = createCelebrationModel.Why ?? HttpUtility.HtmlEncode(createCelebrationModel.Why),
                 Date = createCelebrationModel.Date.Value,
                 BoardID = createCelebrationModel.BoardID
             });
@@ -245,16 +242,25 @@ namespace HHSBoard.Controllers
 
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {
+            var search = boardTableViewModel.Search?.ToUpper().Trim();
+
             if (boardTableViewModel.TableType == TableType.CELEBRATION)
             {
                 var table = _applicationDbContext.Celebrations.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = await table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit).ToListAsync();
+                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    data = data.Where(c => c.Who.ToUpper().Contains(search)
+                    || c.What.ToUpper().Contains(search)
+                    || c.Why.ToUpper().Contains(search));
+                }
+                
                 return new CelebrationViewModel
                 {
                     Total = total,
-                    Celebrations = data
+                    Celebrations = await data.ToListAsync()
                 };
             }
 
@@ -262,12 +268,25 @@ namespace HHSBoard.Controllers
             {
                 var table = _applicationDbContext.WIPs.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = await table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit).ToListAsync();
+                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+                if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
+                {
+                    data = data.Where(w => w.Why.ToUpper().Contains(search)
+                    || w.Updates.ToUpper().Contains(search)
+                    || w.StrategicGoals.ToUpper().Contains(search)
+                    || w.StaffWorkingOnOpportunity.ToUpper().Contains(search)
+                    || w.Saftey.ToUpper().Contains(search)
+                    || w.Problem.ToUpper().Contains(search)
+                    || w.Name.ToUpper().Contains(search)
+                    || w.JustDoIt.ToUpper().Contains(search)
+                    || w.EightWs.ToUpper().Contains(search));
+                }
 
                 return new WIPViewModel
                 {
                     Total = total,
-                    WIPs = data
+                    WIPs = await data.ToListAsync()
                 };
             }
 
@@ -292,7 +311,7 @@ namespace HHSBoard.Controllers
             }
             else if (type == typeof(PickChart))
             {
-                return (PickChart) int.Parse(value);
+                return (PickChart)int.Parse(value);
             }
             else if (type == typeof(bool))
             {

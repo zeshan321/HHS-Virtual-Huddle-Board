@@ -20,7 +20,6 @@
      */
 
     !function ($) {
-
         'use strict';
 
         //From MDN site, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
@@ -129,7 +128,7 @@
             var that = this;
             try {
                 $(this.$el).dragtable('destroy');
-            } catch (e) {}
+            } catch (e) { }
             $(this.$el).dragtable({
                 maxMovingRows: that.options.maxMovingRows,
                 dragaccept: that.options.dragaccept,

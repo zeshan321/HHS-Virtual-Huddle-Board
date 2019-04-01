@@ -20,7 +20,6 @@
      */
 
     !function ($) {
-
         'use strict';
 
         var originalRowAttr,
@@ -223,7 +222,6 @@
             //Temporal validation
             if (!this.options.sortName) {
                 if (this.options.groupBy && this.options.groupByField.length > 0) {
-
                     this.options.groupByField = typeof this.options.groupByField === 'string' ? this.options.groupByField.replace('[', '').replace(']', '').replace(/ /g, '').toLowerCase().split(',') : this.options.groupByField;
 
                     data = makeGrouped(this, data ? data : this.options.data);

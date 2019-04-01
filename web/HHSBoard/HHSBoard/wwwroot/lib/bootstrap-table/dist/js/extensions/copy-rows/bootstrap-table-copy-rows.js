@@ -50,14 +50,12 @@
             _initToolbar = BootstrapTable.prototype.initToolbar;
 
         BootstrapTable.prototype.initToolbar = function () {
-
             _initToolbar.apply(this, Array.prototype.slice.apply(arguments));
 
             var that = this,
                 $btnGroup = this.$toolbar.find('>.btn-group');
 
             if (this.options.clickToSelect || this.options.singleSelect) {
-
                 if (this.options.copyBtn) {
                     var copybtn = "<button class='btn btn-default' id='copyBtn'><span class='glyphicon glyphicon-copy icon-pencil'></span></button>";
                     $btnGroup.append(copybtn);

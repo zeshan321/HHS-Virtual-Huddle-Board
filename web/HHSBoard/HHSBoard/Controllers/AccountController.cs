@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using HHSBoard.Models;
+using HHSBoard.Models.AccountViewModels;
+using HHSBoard.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using HHSBoard.Models;
-using HHSBoard.Models.AccountViewModels;
-using HHSBoard.Services;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace HHSBoard.Controllers
 {
@@ -430,7 +426,6 @@ namespace HHSBoard.Controllers
             return View();
         }
 
-
         [HttpGet]
         public IActionResult AccessDenied()
         {
@@ -459,6 +454,6 @@ namespace HHSBoard.Controllers
             }
         }
 
-        #endregion
+        #endregion Helpers
     }
 }

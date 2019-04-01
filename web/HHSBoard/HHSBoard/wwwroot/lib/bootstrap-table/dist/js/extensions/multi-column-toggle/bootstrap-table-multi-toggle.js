@@ -41,7 +41,6 @@
             _initToolbar = BootstrapTable.prototype.initToolbar;
 
         BootstrapTable.prototype.initToolbar = function () {
-
             _initToolbar.apply(this, Array.prototype.slice.apply(arguments));
 
             var that = this,

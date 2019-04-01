@@ -7,7 +7,6 @@
   background-color: transparent;
 }
 
-
 .table-striped tbody tr:nth-child(odd):hover td {
    background-color: #F9F9F9;
 }

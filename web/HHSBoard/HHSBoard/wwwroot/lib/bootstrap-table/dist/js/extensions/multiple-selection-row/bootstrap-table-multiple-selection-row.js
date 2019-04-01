@@ -20,7 +20,6 @@
      */
 
     !function ($) {
-
         'use strict';
 
         document.onselectstart = function () {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HHSBoard.Data
 {
@@ -16,7 +12,7 @@ namespace HHSBoard.Data
 
         [Required]
         public int BoardID { get; set; }
-        
+
         [ForeignKey("BoardID")]
         public virtual Board Board { get; set; }
     }

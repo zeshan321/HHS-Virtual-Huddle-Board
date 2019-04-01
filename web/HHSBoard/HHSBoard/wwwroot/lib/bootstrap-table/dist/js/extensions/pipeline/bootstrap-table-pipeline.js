@@ -16,7 +16,7 @@
     /**
      * @author doug-the-guy
      * @version v1.0.0
-     * 
+     *
      * Boostrap Table Pipeline
      * -----------------------
      *
@@ -48,7 +48,7 @@
      * On a page change, the new offset is checked if it is within the current cache window. If so,
      * the requested page data is returned from the cached data set. Otherwise, a new server side
      * request will be issued for the new cache window.
-     * 
+     *
      * The current cached data is only invalidated on these events:
      *  * sorting
      *  * searching
@@ -63,7 +63,6 @@
      **/
 
     (function ($) {
-
         'use strict';
 
         var Utils = $.fn.bootstrapTable.utils;
@@ -92,7 +91,7 @@
             _onPageListChange = BootstrapTable.prototype.onPageListChange;
 
         BootstrapTable.prototype.init = function () {
-            // needs to be called before initServer()  
+            // needs to be called before initServer()
             this.initPipeline();
             _init.apply(this, Array.prototype.slice.apply(arguments));
         };
@@ -168,10 +167,10 @@
         };
 
         BootstrapTable.prototype.initServer = function (silent, query, url) {
-            /* determine if requested data is in cache (on paging) or if 
+            /* determine if requested data is in cache (on paging) or if
              * a new ajax request needs to be issued (sorting, searching, paging
              * moving outside of cached data, page size change)
-             * initial version of this extension will entirely override base initServer 
+             * initial version of this extension will entirely override base initServer
              **/
 
             var data = {};
@@ -221,7 +220,7 @@
                             //  since each cache window is aligned with the current page size
                             //  checking if params.offset is outside the current window is sufficient.
                             //  need to requery for preceding or succeeding cache window
-                            //  also handle case 
+                            //  also handle case
                             if (this.resetCache || params.offset < w.lower || params.offset > w.upper) {
                                 useAjax = true;
                                 this.setCurrWindow(params.offset);
@@ -265,7 +264,7 @@
                 return;
             }
             // cached results can't be used
-            // continue base initServer code    
+            // continue base initServer code
             if (!$.isEmptyObject(this.filterColumnsPartial)) {
                 params.filter = JSON.stringify(this.filterColumnsPartial, null);
             }

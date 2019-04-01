@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using HHSBoard.Data;
+﻿using HHSBoard.Data;
 using HHSBoard.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace HHSBoard.Controllers
 {
@@ -37,7 +34,7 @@ namespace HHSBoard.Controllers
         {
             if (string.IsNullOrEmpty(createUnitModel.Name))
             {
-                Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json("Invalid unit name.");
             }
 

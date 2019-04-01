@@ -1,8 +1,6 @@
-
-
 function sprintf( ) {
-    // Return a formatted string  
-    // 
+    // Return a formatted string
+    //
     // version: 903.3016
     // discuss at: http://phpjs.org/functions/sprintf
     // +   original by: Ash Searle (http://hexmen.com/blog/)

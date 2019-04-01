@@ -20,7 +20,6 @@
      */
 
     !function ($) {
-
         'use strict';
 
         $.extend($.fn.bootstrapTable.defaults, {

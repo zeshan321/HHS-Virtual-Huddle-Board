@@ -9,22 +9,22 @@ $(document).ready(function () {
 
     // Hover behaviour: make sure this doesn't work on .click-to-toggle FABs!
     $(document).on('mouseenter.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle)', function (e) {
-    	// Open
+        // Open
         var $this = $(this);
         openFABMenu($this);
 
         // Change background based in data attributes
         $("#first-fab").css('background', function () {
-        	return $(this).data('fabcolor');
+            return $(this).data('fabcolor');
         });
         $("#second-fab").css('background', function () {
-        	return $(this).data('fabcolor');
+            return $(this).data('fabcolor');
         });
         $("#third-fab").css('background', function () {
-        	return $(this).data('fabcolor');
+            return $(this).data('fabcolor');
         });
         $("#fourth-fab").css('background', function () {
-        	return $(this).data('fabcolor');
+            return $(this).data('fabcolor');
         });
     });
     $(document).on('mouseleave.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle)', function (e) {
@@ -53,16 +53,15 @@ $.fn.extend({
     }
 });
 
-var head= document.getElementsByTagName('head')[0];
-var script= document.createElement('script');
-script.type= 'text/javascript';
-script.src= 'https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js';
+var head = document.getElementsByTagName('head')[0];
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = 'https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js';
 head.appendChild(script);
 
 var openFABMenu = function (btn) {
     $this = btn;
     if ($this.hasClass('active') === false) {
-
         // Get direction option
         var horizontal = $this.hasClass('horizontal');
         var offsetY, offsetX;

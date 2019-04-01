@@ -20,7 +20,6 @@
      */
 
     !function ($) {
-
         'use strict';
 
         var showHideColumns = function showHideColumns(that, checked) {
@@ -120,9 +119,9 @@
 
             var that = this,
                 old = {
-                width: $(window).width(),
-                height: $(window).height()
-            };
+                    width: $(window).width(),
+                    height: $(window).height()
+                };
 
             $(window).on('resize orientationchange', debounce(function (evt) {
                 // reset view if height has only changed by at least the threshold.

@@ -1,5 +1,3 @@
-using System;
-
 namespace HHSBoard.Models
 {
     public class ErrorViewModel

@@ -12,9 +12,10 @@ using System;
 namespace HHSBoard.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190401144411_AuditUsername")]
+    partial class AuditUsername
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +34,6 @@ namespace HHSBoard.Data.Migrations
                     b.Property<string>("NewValues");
 
                     b.Property<string>("OldValues");
-
-                    b.Property<string>("State");
 
                     b.Property<string>("TableName");
 

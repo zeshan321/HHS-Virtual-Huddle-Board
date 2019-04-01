@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HHSBoard.Data;
+using HHSBoard.Models;
+using HHSBoard.Models.HomeViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using HHSBoard.Models;
-using Microsoft.AspNetCore.Authorization;
-using HHSBoard.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
-using HHSBoard.Models.HomeViewModels;
+using System.Threading.Tasks;
 
 namespace HHSBoard.Controllers
 {

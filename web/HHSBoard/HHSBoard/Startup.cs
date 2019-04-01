@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using HHSBoard.Data;
+﻿using HHSBoard.Data;
 using HHSBoard.Models;
 using HHSBoard.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
 namespace HHSBoard
 {
@@ -37,7 +35,7 @@ namespace HHSBoard
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Password settings 
+                // Password settings
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
@@ -45,28 +43,28 @@ namespace HHSBoard
                 options.Password.RequireLowercase = false;
                 options.Password.RequiredUniqueChars = 6;
 
-                // Lockout settings 
+                // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
                 options.Lockout.MaxFailedAccessAttempts = 10;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // User settings 
+                // User settings
                 options.User.RequireUniqueEmail = true;
             });
 
-            //Setting the Account Login page 
+            //Setting the Account Login page
             services.ConfigureApplicationCookie(options =>
             {
-                // Cookie settings 
+                // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                // If the LoginPath is not set here, ASP.NET Core will default to /Account/Login 
+                // If the LoginPath is not set here, ASP.NET Core will default to /Account/Login
                 options.LoginPath = "/Account/Login";
                 // If the LogoutPath is not set here, ASP.NET Core will default to /Account/Logout
-                options.LogoutPath = "/Account/Logout";   
-                // If the AccessDeniedPath is not set here, ASP.NET Core will default to /Account/AccessDenied 
-                options.AccessDeniedPath = "/Account/AccessDenied"; 
-          
+                options.LogoutPath = "/Account/Logout";
+                // If the AccessDeniedPath is not set here, ASP.NET Core will default to /Account/AccessDenied
+                options.AccessDeniedPath = "/Account/AccessDenied";
+
                 options.SlidingExpiration = true;
             });
 
@@ -111,7 +109,7 @@ namespace HHSBoard
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string[] roles = { "Admin", "User" };
-                 
+
             IdentityResult roleResult;
             foreach (var role in roles)
             {

@@ -35,25 +35,67 @@
             });
             return false;
         });
+
+        $("#boardSearch").keyup(function () {
+            var search = $(this).val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/SearchBoards",
+                data: { Search: search },
+                dataType: "json",
+                success: function (data) {
+                    $(".row").empty();
+
+                    for (var i = 0; i < data.boards.length; i++) {
+                        var item = data.boards[i];
+                        var id = item.id;
+                        var name = item.name;
+                        var unitName = item.unit.name;
+
+                        $(".row").append(boardTemplate(id, name, unitName));
+                    }
+                },
+                error: function (data) {
+                    $.notify({
+                        message: "Unable to search for boards."
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+        });
     });
+
+    function boardTemplate(ID, name, unit) {
+        return [
+            '<div class="col-sm-6 col-md-4">',
+            '<div class="thumbnail">',
+            '<div class="caption">',
+            '<h3 class="board-name-text">' + name + '<br /><small>' + unit + '</small></h3>',
+            '<p><a href="/Board?BoardID=' + ID + '" class="btn btn-primary" role="button" data-boardID="' + ID + '">View</a> <a href="#" class="btn btn-danger" role="button" data-boardID="' + ID + '">Delete</a></p>',
+            '</div>',
+            '</div>',
+            '</div>'
+        ].join('');
+    }
 </script>
 
 <div class="page-header">
-    <h1>Boards <span class="label label-default">@Model.Boards.Count</span></h1>
+    <h1>Boards</h1>
+</div>
+
+<div class="form-group">
+    <label for="inputlg">Search</label>
+    <input class="form-control input-lg" id="boardSearch" type="text" placeholder="Enter search...">
 </div>
 
 <div class="row">
     @foreach (var board in Model.Boards)
     {
-        <div class="col-sm-6 col-md-4">
-            <div class="thumbnail">
-                <div class="caption">
-                    <h3 class="board-name-text">@board.Name<br /><small>@board.Unit.Name</small></h3>
-
-                    <p><a href="/Board?BoardID=@board.ID" class="btn btn-primary" role="button" data-boardID="@board.ID">View</a> <a href="#" class="btn btn-danger" role="button" data-boardID="@board.ID">Delete</a></p>
-                </div>
-            </div>
-        </div>
+        <script>
+            $(".row").append(boardTemplate(@board.ID, '@board.Name', '@board.Unit.Name'));
+        </script>
     }
 </div>
 

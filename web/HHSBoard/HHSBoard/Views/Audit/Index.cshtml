@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewData["Title"] = "Audit";
+}
+
+<script>
+    var $table;
+
+    $(function () {
+        $table = $('#table');
+
+        initTable();
+    });
+
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        });
+    }
+    function statusFormatter(value, row, index) {
+        console.log(value);
+        if (value === "Deleted") {
+            return '<span class="label label-danger">' + value + '</span>';
+        } else if (value === "Added") {
+            return '<span class="label label-success">' + value + '</span>';
+        } else if (value === "Modified") {
+            return '<span class="label label-warning">' + value + '</span>';
+        } else {
+            return '<span class="label label-default">' + value + '</span>';
+        }
+    }
+</script>
+
+<div class="page-header">
+    <h1>Audit</h1>
+</div>
+
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id",
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-url="/Audit/GetAuditData">
+    <thead>
+        <tr>
+            <th data-field="id" data-visible="false">ID</th>
+            <th data-field="dateTime">Date</th>
+            <th data-field="state" data-formatter="statusFormatter">State</th>
+            <th data-field="tableName">Table Name</th>
+            <th data-field="username">Username</th>
+            <th data-field="keyValues">Key Values</th>
+            <th data-field="oldValues">Old Values</th>
+            <th data-field="newValues">New Values</th>
+        </tr>
+    </thead>
+</table>
+

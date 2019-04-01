@@ -48,16 +48,17 @@
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                     <li>
-                        @*@if (User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            @if (User.IsInRole("Admin"))
-                            {*@
+                            if (User.IsInRole("Admin"))
+                            {
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a asp-controller="Units" asp-action="Index" id="top-link" class="skel-layers-ignoreHref">Unit</a></li>
+                                    <li><a asp-controller="Audit" asp-action="Index" class="skel-layers-ignoreHref">Audit</a></li>
+                                    <li><a asp-controller="Units" asp-action="Index" class="skel-layers-ignoreHref">Unit</a></li>
                                 </ul>
-                            @*}
-                        }*@
+                            }
+                        }
                     </li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")

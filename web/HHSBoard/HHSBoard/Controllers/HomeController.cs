@@ -1,5 +1,6 @@
 ﻿using HHSBoard.Data;
 using HHSBoard.Models;
+using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.HomeViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +25,7 @@ namespace HHSBoard.Controllers
             _userManager = userManager;
         }
 
+        // Incorrect way. Should just include units in board.
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -31,6 +33,29 @@ namespace HHSBoard.Controllers
 
             // TODO: Only show boards user has access to
             return View(new HomeIndexViewModel
+            {
+                Units = await _applicationDbContext.Units.ToListAsync(),
+                Boards = await _applicationDbContext.Boards.ToListAsync()
+            });
+        }
+
+        public async Task<IActionResult> SearchBoards(BoardTableModel boardTableModel)
+        {
+            var search = boardTableModel.Search?.ToUpper().Trim();
+            
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var units = _applicationDbContext.Units.Where(u => u.Name.ToUpper().Contains(search));
+                var boards = _applicationDbContext.Boards.Where(b => b.Name.ToUpper().Contains(search)).Include(b => b.Unit);
+
+                return Json(new HomeIndexViewModel
+                {
+                    Units = await units.ToListAsync(),
+                    Boards = await boards.ToListAsync()
+                });
+            }
+
+            return Json(new HomeIndexViewModel
             {
                 Units = await _applicationDbContext.Units.ToListAsync(),
                 Boards = await _applicationDbContext.Boards.ToListAsync()

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HHSBoard.Data;
 using HHSBoard.Models;
 using HHSBoard.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace HHSBoard
 {
@@ -26,8 +27,7 @@ namespace HHSBoard
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IUserResolverService, UserResolverService>();
-
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 

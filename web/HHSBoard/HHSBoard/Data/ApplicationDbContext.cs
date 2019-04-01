@@ -8,19 +8,20 @@ using HHSBoard.Models;
 using Microsoft.AspNetCore.Http;
 using System.Threading;
 using HHSBoard.Services;
+using System.Security.Principal;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace HHSBoard.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        private readonly string currentUsername;
+        private IHttpContextAccessor httpContextAccessor;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IUserResolverService userService)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
-            currentUsername = !string.IsNullOrEmpty(userService?.GetUser())
-            ? userService.GetUser()
-            : "System-NoUser";
+            this.httpContextAccessor = httpContextAccessor;
         }
         
         public DbSet<Unit> Units { get; set; }
@@ -45,19 +46,27 @@ namespace HHSBoard.Data
 
         public override int SaveChanges()
         {
-            AddTimestamps();
+            var username = !string.IsNullOrEmpty(httpContextAccessor?.HttpContext?.User?.Identity?.Name)
+            ? httpContextAccessor.HttpContext.User.Identity.Name
+            : "System-NoUser";
+
+            AddTimestamps(username);
             return base.SaveChanges();
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            AddTimestamps();
+            var username = !string.IsNullOrEmpty(httpContextAccessor?.HttpContext?.User?.Identity?.Name)
+            ? httpContextAccessor.HttpContext.User.Identity.Name
+            : "System-NoUser";
+
+            AddTimestamps(username);
             return await base.SaveChangesAsync();
         }
 
-        private void AddTimestamps()
+        private void AddTimestamps(string currentUsername)
         {
-            var entities = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified) || x.State == EntityState.Deleted);
             
             foreach (var entity in entities)
             {
@@ -67,8 +76,11 @@ namespace HHSBoard.Data
                     ((BaseEntity)entity.Entity).UserCreated = currentUsername;
                 }
 
-                ((BaseEntity)entity.Entity).DateModified = DateTime.UtcNow;
-                ((BaseEntity)entity.Entity).UserModified = currentUsername;
+                if (entity.State == EntityState.Modified)
+                {
+                    ((BaseEntity)entity.Entity).DateModified = DateTime.UtcNow;
+                    ((BaseEntity)entity.Entity).UserModified = currentUsername;
+                }
             }
         }
     }

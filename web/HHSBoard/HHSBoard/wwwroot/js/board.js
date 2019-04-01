@@ -1,7 +1,7 @@
 ﻿$.fn.editable.defaults.mode = 'inline';
 $.fn.editableform.buttons =
     '<button type="submit" class="btn btn-primary editable-submit" style="margin-right: 10px;">Save</button>' +
-    '<button type="button" class="btn editable-cancel">Cancel</button>';   
+    '<button type="button" class="btn editable-cancel">Cancel</button>';
 $.fn.combodate.defaults.maxYear = new Date().getFullYear();
 
 // List of registered tables in order.
@@ -17,7 +17,7 @@ $(function () {
 
     if (typeof tableType == 'undefined' || tableType == 0) {
         tableType = 0;
-        
+
         $("#navLeft").prop("disabled", true);
     } else {
         tableType = parseInt(tableType);

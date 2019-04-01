@@ -8,7 +8,7 @@
         $("#createBoardForm").submit(function (e) {
             var boardName = $("#createBoardName").val();
             var unitID = $('#createBoardUnits').find(":selected").val();
-            
+
             $.ajax({
                 type: "POST",
                 url: "/Home/CreateBoard",

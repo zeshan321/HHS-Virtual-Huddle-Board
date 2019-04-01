@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using HHSBoard.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using HHSBoard.Models;
-using Microsoft.AspNetCore.Http;
+using System;
+using System.Linq;
 using System.Threading;
-using HHSBoard.Services;
-using System.Security.Principal;
-using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Threading.Tasks;
 
 namespace HHSBoard.Data
 {
@@ -23,7 +18,7 @@ namespace HHSBoard.Data
         {
             this.httpContextAccessor = httpContextAccessor;
         }
-        
+
         public DbSet<Unit> Units { get; set; }
 
         public DbSet<Board> Boards { get; set; }
@@ -67,7 +62,7 @@ namespace HHSBoard.Data
         private void AddTimestamps(string currentUsername)
         {
             var entities = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified) || x.State == EntityState.Deleted);
-            
+
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)

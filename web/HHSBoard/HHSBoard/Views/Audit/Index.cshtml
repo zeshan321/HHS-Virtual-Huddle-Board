@@ -17,6 +17,18 @@
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
         });
     }
+    function statusFormatter(value, row, index) {
+        console.log(value);
+        if (value === "Deleted") {
+            return '<span class="label label-danger">' + value + '</span>';
+        } else if (value === "Added") {
+            return '<span class="label label-success">' + value + '</span>';
+        } else if (value === "Modified") {
+            return '<span class="label label-warning">' + value + '</span>';
+        } else {
+            return '<span class="label label-default">' + value + '</span>';
+        }
+    }
 </script>
 
 <div class="page-header">
@@ -40,7 +52,7 @@
         <tr>
             <th data-field="id" data-visible="false">ID</th>
             <th data-field="dateTime">Date</th>
-            <th data-field="state">State</th>
+            <th data-field="state" data-formatter="statusFormatter">State</th>
             <th data-field="tableName">Table Name</th>
             <th data-field="username">Username</th>
             <th data-field="keyValues">Key Values</th>

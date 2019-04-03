@@ -34,6 +34,8 @@ namespace HHSBoard.Data
 
         public DbSet<WIP> WIPs { get; set; }
 
+        public DbSet<NewImpOp> NewImpOps { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

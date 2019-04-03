@@ -11,6 +11,12 @@
     <Compile Remove="Data\Migrations\20190312195528_UnitsTable.Designer.cs" />
     <Compile Remove="Data\Migrations\20190331214247_GoalsEnum.cs" />
     <Compile Remove="Data\Migrations\20190331214247_GoalsEnum.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190402141545_NewImpOps.cs" />
+    <Compile Remove="Data\Migrations\20190402141545_NewImpOps.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190402142319_NewImpOps.cs" />
+    <Compile Remove="Data\Migrations\20190402142319_NewImpOps.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190402142451_NewImpOps.cs" />
+    <Compile Remove="Data\Migrations\20190402142451_NewImpOps.Designer.cs" />
   </ItemGroup>
 
 

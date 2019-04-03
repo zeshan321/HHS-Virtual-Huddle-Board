@@ -8,7 +8,8 @@ $.fn.combodate.defaults.maxYear = new Date().getFullYear();
 var tables = {
     PURPOSE: 0,
     CELEBRATION: 1,
-    WIP: 2
+    WIP: 2,
+    NEWIMPOP: 3
 };
 
 $(function () {

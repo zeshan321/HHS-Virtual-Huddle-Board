@@ -2,6 +2,7 @@
 using HHSBoard.Helpers;
 using HHSBoard.Models;
 using HHSBoard.Models.CelebrationViewModels;
+using HHSBoard.Models.NewImpOpViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
 using HHSBoard.Models.WIPViewModels;
@@ -52,6 +53,11 @@ namespace HHSBoard.Controllers
                     var wipData = await GetViewModel<WIPViewModel>(boardTableViewModel);
 
                     return Json(wipData);
+
+                case TableType.NEWIMPOP:
+                    var newImpOpData = await GetViewModel<NewImpOpViewModel>(boardTableViewModel);
+
+                    return Json(newImpOpData);
             }
 
             return Json("No table found.");
@@ -124,6 +130,41 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddNewImpOp(CreateNewImpOp createNewImpOp)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == createNewImpOp.BoardID);
+            if (!board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"No board found.");
+            }
+
+            if (!createNewImpOp.DateIdentified.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            _applicationDbContext.NewImpOps.Add(new NewImpOp
+            {
+                BoardID = createNewImpOp.BoardID,
+                Legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend),
+                PersonIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity),
+                DateIdentified = createNewImpOp.DateIdentified.Value,
+                Problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem),
+                StaffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity),
+                StrategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals),
+                IsPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity,
+                EightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs),
+                PickChart = createNewImpOp.PickChart,
+                JustDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt)
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Created");
+        }
+
         public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
         {
             if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
@@ -143,6 +184,13 @@ namespace HHSBoard.Controllers
             {
                 var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
                 _applicationDbContext.WIPs.RemoveRange(wip);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else if (fieldDeleteModel.TableType == TableType.NEWIMPOP)
+            {
+                var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.NewImpOps.RemoveRange(newImpOp);
 
                 await _applicationDbContext.SaveChangesAsync();
             }
@@ -199,6 +247,26 @@ namespace HHSBoard.Controllers
                     return Json($"Invalid value format for {TableType.WIP.ToString()}");
                 }
             }
+            else if (fieldUpdateModel.TableType == TableType.NEWIMPOP)
+            {
+                var newImpOp = await _applicationDbContext.NewImpOps.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = newImpOp.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+
+                if (converted != null)
+                {
+                    proptery.SetValue(newImpOp, Convert.ChangeType(converted, memberType), null);
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json($"Invalid value format for {TableType.NEWIMPOP.ToString()}");
+                }
+            }
             else
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -220,6 +288,11 @@ namespace HHSBoard.Controllers
         }
 
         public PartialViewResult WIPTable()
+        {
+            return PartialView();
+        }
+
+        public PartialViewResult NewImpOpsTable()
         {
             return PartialView();
         }
@@ -287,6 +360,30 @@ namespace HHSBoard.Controllers
                 {
                     Total = total,
                     WIPs = await data.ToListAsync()
+                };
+            }
+
+            if (boardTableViewModel.TableType == TableType.NEWIMPOP)
+            {
+                var table = _applicationDbContext.NewImpOps.Where(c => c.BoardID == boardTableViewModel.BoardID);
+                var total = await table.CountAsync();
+                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+                if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
+                {
+                    data = data.Where(w => w.Legend.ToUpper().Contains(search)
+                    || w.PersonIdentifyingOpportunity.ToUpper().Contains(search)
+                    || w.Problem.ToUpper().Contains(search)
+                    || w.StaffWorkingOnOpportunity.ToUpper().Contains(search)
+                    || w.StrategicGoals.ToUpper().Contains(search)
+                    || w.EightWs.ToUpper().Contains(search)
+                    || w.JustDoIt.ToUpper().Contains(search));
+                }
+
+                return new NewImpOpViewModel
+                {
+                    Total = total,
+                    NewImpOps = await data.ToListAsync()
                 };
             }
 

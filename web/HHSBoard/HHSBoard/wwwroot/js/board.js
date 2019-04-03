@@ -5,11 +5,7 @@ $.fn.editableform.buttons =
 $.fn.combodate.defaults.maxYear = new Date().getFullYear();
 
 // List of registered tables in order.
-var tables = {
-    PURPOSE: 0,
-    CELEBRATION: 1,
-    WIP: 2
-};
+var tables = ["PURPOSE", "CELEBRATION", "WIP", "YOU NEW TABLE HERE"];
 
 $(function () {
     // Get current table
@@ -22,7 +18,7 @@ $(function () {
     } else {
         tableType = parseInt(tableType);
 
-        if (tableType >= Object.keys(tables).length / 2) {
+        if (tableType >= Object.keys(tables).length - 1) {
             $("#navRight").prop("disabled", true);
         }
     }

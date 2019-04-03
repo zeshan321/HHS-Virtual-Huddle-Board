@@ -107,6 +107,25 @@ namespace HHSBoard.Controllers
             return Json(newBoard);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteBoard(DeleteBoardModel deleteBoardModel)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == deleteBoardModel.ID).SingleOrDefault();
+
+            if(board == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Invalid board id.");
+            }
+            else
+            {
+                _applicationDbContext.Boards.Remove(board);
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Deleted");
+        }
+
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

@@ -1,0 +1,321 @@
+﻿<script>
+    var $table;
+
+    $(function () {
+        $table = $('#table');
+
+        // Set textare as summernote when textarea dynamically added.
+        $.initialize("textarea", function () {
+            if ($(this).hasClass("form-control") && $(this).hasClass("input-large")) {
+                $(this).summernote();
+            }
+        });
+
+        $("#selectionRemove").click(function () {
+            var selections = $("table").bootstrapTable('getSelections');
+            var ids = [];
+            for (var i = 0; i < selections.length; i++) {
+                ids.push(selections[i].id);
+            }
+
+            deleteFields(ids);
+        });
+
+        $("#confirmDelete").click(function () {
+            $.ajax({
+            type: "POST",
+            url: "/Board/DeleteFields",
+            data: {
+                BoardID: @ViewBag.BoardID, TableType: 3, Delete: globalDeleteList },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully deleted.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    $table.bootstrapTable('remove', {
+                        field: 'id',
+                        values: globalDeleteList
+                    });
+
+                    $("#deleteModal").modal("hide");
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+        });
+
+
+        // Make modal create fields editable
+        $("#createLegend").editable();
+        $("#createPersonIdentifyingOpportunity").editable();
+        $("#createDate").editable();
+        $("#createProblem").editable();
+        $("#createStaffWorkingOnOpportunity").editable();
+        $("#createStrategicGoals").editable();
+        $("#createIsPtFamilyInvovlmentOpportunity").editable()
+        $("#createEightWs").editable();
+        $("#createPickChart").editable();
+        $("#createJustDoIt").editable();
+
+        // Reset editables
+        $('#reset').click(function () {
+            $('.createable').editable('setValue', null)
+                .editable('option', 'pk', null)
+                .removeClass('editable-unsaved');
+        });
+
+        $("#createNewImpOpForm").submit(function () {
+            var createLegend = $("#createLegend").editable("getValue")["createLegend"];
+            var createPersonIdentifyingOpportunity = $("#createPersonIdentifyingOpportunity").editable("getValue")["createPersonIdentifyingOpportunity"];
+            var createDate = $("#createDate").editable("getValue")["createDate"];
+            var createProblem = $("#createProblem").editable("getValue")["createProblem"];
+            var createStaffWorkingOnOpportunity = $("#createStaffWorkingOnOpportunity").editable("getValue")["createStaffWorkingOnOpportunity"];
+            var createStrategicGoals = $("#createStrategicGoals").editable("getValue")["createSaftey"];
+            var createIsPtFamilyInvovlmentOpportunity = $("#createIsPtFamilyInvovlmentOpportunity").editable("getValue")["createIsPtFamilyInvovlmentOpportunity"];
+            var createEightWs = $("#createEightWs").editable("getValue")["createEightWs"];
+            var createPickChart = $("#createPickChart").editable("getValue")["createPickChart"];
+            var createJustDoIt = $("#createJustDoIt").editable("getValue")["createJustDoIt"];
+
+            if (typeof createDate == 'undefined') {
+                $("#createDate").parent().append("<p id='createDateError' style='color: red'>This field is required!</p>")
+                return false;
+            } else {
+                $("#createDateError").remove();
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/AddNewImpOp",
+                data: {
+                    BoardID: @ViewBag.BoardID, Legend: createLegend,
+                    PersonIdentifyingOpportunity: createPersonIdentifyingOpportunity,
+                    DateIdentified: createDate, Problem: createProblem,
+                    EightWs: createEightWs, StrategicGoals: createStrategicGoals,
+                    IsPtFamilyInvovlmentOpportunity: createIsPtFamilyInvovlmentOpportunity,
+                    PickChart: createPickChart,
+                    StaffWorkingOnOpportunity: createStaffWorkingOnOpportunity,
+                    JustDoIt: createJustDoIt,
+                },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully created New Improvment Opportunity.'
+                    }, {
+                            type: 'success'
+                    });
+
+                    location.reload();
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+
+            return false;
+        });
+
+        initTable();
+    });
+
+    function initTable() {
+        // Triggered when delete is pressed in table row
+        window.operateEvents = {
+            'click .remove': function (e, value, row, index) {
+                deleteFields([row.id]);
+            }
+        }
+
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        });
+    }
+
+    var globalDeleteList;
+    function deleteFields(list) {
+        globalDeleteList = list;
+
+        if (globalDeleteList.length > 0) {
+            $("#deleteModal").modal("show");
+
+            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> records?");
+        } else {
+            $.notify({
+                message: "No records selected to be deleted."
+            }, {
+                    type: 'danger'
+                });
+        }
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="remove btn btn-danger" href="javascript:void(0)" title="Remove">',
+            '<i class="fa fa-trash"></i>',
+            '</a>'
+        ].join('')
+    }
+</script>
+
+<div class="page-header">
+    <h1>New Improvement Opportunities</h1>
+</div>
+
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id" ,
+       data-editable-url="/Board/UpdateField?TableType=3"
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-maintain-selected="true"
+       data-url="/Board/GetTableData?TableType=3&BoardID=@ViewBag.BoardID">
+    <thead>
+        <tr>
+            <th data-field="state" class="fit" data-checkbox="true"></th>
+            <th data-field="id" class="fit" data-visible="false">ID</th>
+            <th data-field="legend" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Legend</th>
+            <th data-field="personIdentifyingOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name of Person Identitfying Opportunity</th>
+            <th data-field="dateIdentified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
+            <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
+            <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff Working On Opportunity</th>
+            <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
+            <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
+            <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
+            <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
+            <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It/ PDSA / Work Waiting</th>
+            <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
+        </tr>
+    </thead>
+</table>
+
+
+<div class="modal fade" id="deleteModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Are you sure you want to delete?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="deleteModalText" style="text-align: center;">Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="confirmDelete" type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="newImpOpModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <form id="createNewImpOpForm">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add New Improvment Opportunity</h4>
+                </div>
+
+                <div class="modal-body">
+                    <table id="createImpOpTable" class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Legend</td>
+                                <td><a href="#" class="createable" id="createLegend" data-type="textarea" data-name="createLegend" data-original-title="Enter legend" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Name of Person Identifying Opportunity</td>
+                                <td><a href="#" class="createable" id="createPersonIdentifyingOpportunity" data-type="textarea" data-name="createPersonIdentifyingOpportunity" data-original-title="Enter name" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 1px; white-space: nowrap;">Date *</td>
+                                <td><a href="#" class="createable" id="createDate" data-type="combodate" data-name="createDate" data-template="D MMM YYYY  HH:mm" data-format="YYYY-MM-DD HH:mm" data-viewformat="MMM D, YYYY, HH:mm" data-original-title="Enter date" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Problem</td>
+                                <td><a href="#" class="createable" id="createProblem" data-type="textarea" data-name="createProblem" data-original-title="Enter problem" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Staff Working on Opportunity</td>
+                                <td><a href="#" class="createable" id="createStaffWorkingOnOpportunity" data-type="textarea" data-name="createStaffWorkingOnOpportunity" data-original-title="Enter staff working on opportunity" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>HHS Strategic Goals</td>
+                                <td><a href="#" class="createable" id="createStrategicGoals" data-type="checklist" data-name="createStrategicGoals" data-original-title="Enter HHS strategic goals" data-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Pt/Family Invovlment Opportunity?</td>
+                                <td><a href="#" class="createable" id="createIsPtFamilyInvovlmentOpportunity" data-type="select" data-name="createIsPtFamilyInvovlmentOpportunity" data-original-title="Enter Pt/Family Invovlment Opportunity" data-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]"></a></td>
+                            </tr>
+                            <tr>
+                                <td>8 W's</td>
+                                <td><a href="#" class="createable" id="createEightWs" data-type="textarea" data-name="createEightWs" data-original-title="Enter 8 W's" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Pick Chart</td>
+                                <td><a href="#" class="createable" id="createPickChart" data-type="select" data-name="createPickChart" data-original-title="Enter pick chart" data-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Just Do It / PDSA / Work Waiting</td>
+                                <td><a href="#" class="createable" id="createJustDoIt" data-type="textarea" data-name="createJustDoIt" data-original-title="Enter Just Do It / PDSA / Work Waiting" data-escape="false" data-onblur="ignore"></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="reset" type="button" class="btn btn-default">Reset</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red">
+        <i class="fa fa-pen"></i>
+    </a>
+    <ul>
+        <li>
+            <a id="selectionRemove" class="btn-floating bg-indigo">
+                <i class="fa fa-trash"></i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating bg-indigo" data-target="#newImpOpModal" data-toggle="modal">
+                <i class="fa fa-plus"></i>
+            </a>
+        </li>
+    </ul>
+</div>

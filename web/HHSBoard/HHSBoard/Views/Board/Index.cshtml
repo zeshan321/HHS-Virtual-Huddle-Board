@@ -32,6 +32,10 @@ else if ((int)ViewBag.TableType == 2)
 {
     @await Html.PartialAsync("_WIPTable");
 }
+else if ((int)ViewBag.TableType == 3)
+{
+    @await Html.PartialAsync("_NewImpOpsTable");
+}
 else
 {
     <h1>Error: No table type set.</h1>

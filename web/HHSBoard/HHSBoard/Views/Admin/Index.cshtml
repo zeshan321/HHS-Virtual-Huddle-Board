@@ -43,14 +43,14 @@
     function initTable() {
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
-        }).on('all.bs.table', function (e, name, args) {
+        }).on('post-body.bs.table', function (e, name, args) {
                 var select = $(".js-example-basic-multiple").select2({ width: '100%' });
 
                 select.on('select2:select', function (e) {
-                    var option = $($(this)[0][0]);
+                    var option = $(e.params.data.element);
                     var userID = option.attr("data-user-id");
                     var unitID = option.val();
-
+                    
                     $.ajax({
                         type: "POST",
                         url: "/Admin/UpdateUnitAccess",
@@ -76,7 +76,7 @@
                 });
 
                 select.on('select2:unselect', function (e) {
-                    var option = $($(this)[0][0]);
+                    var option = $(e.params.data.element);
                     var userID = option.attr("data-user-id");
                     var unitID = option.val();
 

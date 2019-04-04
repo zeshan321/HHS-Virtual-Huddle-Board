@@ -18,7 +18,6 @@
         });
     }
     function statusFormatter(value, row, index) {
-        console.log(value);
         if (value === "Deleted") {
             return '<span class="label label-danger">' + value + '</span>';
         } else if (value === "Added") {
@@ -28,6 +27,16 @@
         } else {
             return '<span class="label label-default">' + value + '</span>';
         }
+    }
+    function jsonFormatter(value, row, index) {
+        var element = "<dl>";
+
+        $.each(JSON.parse(value), function (key, value) {
+            element = element + "<dt>" + key + "</dt>"
+            element = element + "<dd>" + value + "</dd>"
+        });
+
+        return element + "</dl>";
     }
 </script>
 
@@ -50,14 +59,14 @@
        data-url="/Audit/GetAuditData">
     <thead>
         <tr>
-            <th data-field="id" data-visible="false">ID</th>
-            <th data-field="dateTime">Date</th>
-            <th data-field="state" data-formatter="statusFormatter">State</th>
-            <th data-field="tableName">Table Name</th>
-            <th data-field="username">Username</th>
-            <th data-field="keyValues">Key Values</th>
-            <th data-field="oldValues">Old Values</th>
-            <th data-field="newValues">New Values</th>
+            <th data-field="id" data-visible="false" class="fit">ID</th>
+            <th data-field="dateTime" class="fit">Date</th>
+            <th data-field="state" data-formatter="statusFormatter" class="fit">State</th>
+            <th data-field="tableName" class="fit">Table Name</th>
+            <th data-field="username" class="fit">Username</th>
+            <th data-field="keyValues" data-formatter="jsonFormatter" class="fit">Key Values</th>
+            <th data-field="oldValues" data-formatter="jsonFormatter" class="fit">Old Values</th>
+            <th data-field="newValues" data-formatter="jsonFormatter" class="fit">New Values</th>
         </tr>
     </thead>
 </table>

@@ -5,7 +5,8 @@
         PURPOSE = 0,
         CELEBRATION = 1,
         WIP = 2,
-        NEWIMPOP = 3        
+        NEWIMPOP = 3,
+        IMPIDEAS = 4
     }
 
     public enum PickChart

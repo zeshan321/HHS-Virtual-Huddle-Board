@@ -38,6 +38,8 @@ namespace HHSBoard.Data
 
         public DbSet<UnitAccess> UnitAccesses { get; set; }
 
+        public DbSet<ImpIdeasImplemented> ImpIdeasImplemented { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

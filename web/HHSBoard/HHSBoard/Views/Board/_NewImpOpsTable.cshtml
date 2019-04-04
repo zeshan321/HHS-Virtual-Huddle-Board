@@ -143,6 +143,10 @@
 
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        }).on('all.bs.table', function (e, name, args) {
+            if (!@ViewBag.IsAdmin.ToString().ToLower()) {
+                $('.editable').editable('option', 'disabled', true);
+            }
         });
     }
 
@@ -301,21 +305,23 @@
     </div>
 </div>
 
-
-<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red">
-        <i class="fa fa-pen"></i>
-    </a>
-    <ul>
-        <li>
-            <a id="selectionRemove" class="btn-floating bg-indigo">
-                <i class="fa fa-trash"></i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating bg-indigo" data-target="#newImpOpModal" data-toggle="modal">
-                <i class="fa fa-plus"></i>
-            </a>
-        </li>
-    </ul>
-</div>
+@if (ViewBag.IsAdmin)
+{
+    <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red">
+            <i class="fa fa-pen"></i>
+        </a>
+        <ul>
+            <li>
+                <a id="selectionRemove" class="btn-floating bg-indigo">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating bg-indigo" data-target="#newImpOpModal" data-toggle="modal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+}

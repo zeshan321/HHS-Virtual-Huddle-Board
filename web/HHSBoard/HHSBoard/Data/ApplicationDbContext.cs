@@ -36,6 +36,8 @@ namespace HHSBoard.Data
 
         public DbSet<NewImpOp> NewImpOps { get; set; }
 
+        public DbSet<UnitAccess> UnitAccesses { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

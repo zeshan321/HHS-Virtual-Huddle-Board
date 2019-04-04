@@ -31,11 +31,16 @@ namespace HHSBoard.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index(int boardID, TableType tableType)
+        public async Task<IActionResult> Index(int boardID, TableType tableType)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+
             ViewBag.BoardID = boardID;
             ViewBag.TableType = tableType;
-
+            ViewBag.IsAdmin = isAdmin;
+            
             var board = _applicationDbContext.Boards.Where(b => b.ID == boardID).FirstOrDefault();
             return View(board);
         }
@@ -63,6 +68,7 @@ namespace HHSBoard.Controllers
             return Json("No table found.");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddCeleration(CreateCelebrationModel createCelebrationModel)
         {
@@ -92,6 +98,7 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddWIP(CreateWipModel createWipModel)
         {
@@ -130,6 +137,7 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddNewImpOp(CreateNewImpOp createNewImpOp)
         {
@@ -165,6 +173,7 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
         {
             if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
@@ -204,6 +213,7 @@ namespace HHSBoard.Controllers
             return Json("Deleted.");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> UpdateField(FieldUpdateModel fieldUpdateModel)
         {
@@ -297,6 +307,7 @@ namespace HHSBoard.Controllers
             return PartialView();
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePurpose(PurposeUpdateModel purposeUpdateModel)
         {
             var board = await _applicationDbContext.Boards.SingleOrDefaultAsync(b => b.ID == purposeUpdateModel.BoardID);

@@ -2,6 +2,7 @@
 using HHSBoard.Helpers;
 using HHSBoard.Models;
 using HHSBoard.Models.CelebrationViewModels;
+using HHSBoard.Models.ImpIdeasImplementedViewModels;
 using HHSBoard.Models.NewImpOpViewModels;
 using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
@@ -58,6 +59,11 @@ namespace HHSBoard.Controllers
                     var newImpOpData = await GetViewModel<NewImpOpViewModel>(boardTableViewModel);
 
                     return Json(newImpOpData);
+
+                case TableType.IMPIDEAS:
+                    var impIdeasData = await GetViewModel<ImpIdeasImplementedViewModel>(boardTableViewModel);
+
+                    return Json(impIdeasData);
             }
 
             return Json("No table found.");
@@ -165,6 +171,51 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddImprovement(CreateImpIdeasImplemented createImpIdeasImplemented)
+        {
+            var board = _applicationDbContext.Boards.Where(b => b.ID == createImpIdeasImplemented.BoardID);
+            if (!board.Any())
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json($"No board found.");
+            }
+
+            if (!createImpIdeasImplemented.Date.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            if (!createImpIdeasImplemented.DateComplete.HasValue)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Date is required.");
+            }
+
+            _applicationDbContext.ImpIdeasImplemented.Add(new ImpIdeasImplemented
+            {
+                BoardID = createImpIdeasImplemented.BoardID,
+                Name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name),
+                Date = createImpIdeasImplemented.Date.Value,
+                Problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem),
+                Owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner),
+                Pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar),
+                IsPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity,
+                EightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs),
+                PickChart = createImpIdeasImplemented.PickChart,
+                JustDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt),
+                Solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution),
+                DateComplete = createImpIdeasImplemented.DateComplete.Value,
+                WorkCreated = createImpIdeasImplemented.WorkCreated,
+                ProcessObservationCreated = createImpIdeasImplemented.ProcessObservationCreated,
+                DateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase),
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Created");
+        }
+
         public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
         {
             if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
@@ -191,6 +242,13 @@ namespace HHSBoard.Controllers
             {
                 var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
                 _applicationDbContext.NewImpOps.RemoveRange(newImpOp);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+            else if (fieldDeleteModel.TableType == TableType.IMPIDEAS)
+            {
+                var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                _applicationDbContext.ImpIdeasImplemented.RemoveRange(impIdeasImplemented);
 
                 await _applicationDbContext.SaveChangesAsync();
             }
@@ -267,6 +325,26 @@ namespace HHSBoard.Controllers
                     return Json($"Invalid value format for {TableType.NEWIMPOP.ToString()}");
                 }
             }
+            else if (fieldUpdateModel.TableType == TableType.IMPIDEAS)
+            {
+                var impIdeasImplemented = await _applicationDbContext.ImpIdeasImplemented.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                var proptery = impIdeasImplemented.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var memberType = proptery.PropertyType;
+                var nonNullType = Nullable.GetUnderlyingType(memberType);
+                if (nonNullType != null)
+                    memberType = nonNullType;
+                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+
+                if (converted != null)
+                {
+                    proptery.SetValue(impIdeasImplemented, Convert.ChangeType(converted, memberType), null);
+                }
+                else
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json($"Invalid value format for {TableType.IMPIDEAS.ToString()}");
+                }
+            }
             else
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -276,6 +354,8 @@ namespace HHSBoard.Controllers
             await _applicationDbContext.SaveChangesAsync();
             return Json("Updated.");
         }
+
+        
 
         public PartialViewResult CelebrationTable()
         {
@@ -293,6 +373,11 @@ namespace HHSBoard.Controllers
         }
 
         public PartialViewResult NewImpOpsTable()
+        {
+            return PartialView();
+        }
+
+        public PartialViewResult ImpIdeasImplementedTable()
         {
             return PartialView();
         }
@@ -384,6 +469,31 @@ namespace HHSBoard.Controllers
                 {
                     Total = total,
                     NewImpOps = await data.ToListAsync()
+                };
+            }
+
+            if (boardTableViewModel.TableType == TableType.IMPIDEAS)
+            {
+                var table = _applicationDbContext.ImpIdeasImplemented.Where(c => c.BoardID == boardTableViewModel.BoardID);
+                var total = await table.CountAsync();
+                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+                if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
+                {
+                    data = data.Where(w => w.Name.ToUpper().Contains(search)
+                    || w.Problem.ToUpper().Contains(search)
+                    || w.Owner.ToUpper().Contains(search)
+                    || w.Pillar.ToUpper().Contains(search)
+                    || w.EightWs.ToUpper().Contains(search)
+                    || w.JustDoIt.ToUpper().Contains(search)
+                    || w.Solution.ToUpper().Contains(search)
+                    || w.DateEnterIntoDatabase.ToUpper().Contains(search));
+                }
+
+                return new ImpIdeasImplementedViewModel
+                {
+                    Total = total,
+                    ImpIdeasImplementeds = await data.ToListAsync()
                 };
             }
 

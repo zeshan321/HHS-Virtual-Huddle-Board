@@ -130,6 +130,10 @@
 
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        }).on('all.bs.table', function (e, name, args) {
+            if (!@ViewBag.IsAdmin.ToString().ToLower()) {
+                $('.editable').editable('option', 'disabled', true);
+            }
         });
     }
 
@@ -180,14 +184,26 @@
        data-url="/Board/GetTableData?TableType=1&BoardID=@ViewBag.BoardID">
     <thead>
         <tr>
-            <th data-field="state" class="fit" data-checkbox="true"></th>
-            <th data-field="id" class="fit" data-visible="false">ID</th>
-            <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
-            <!-- For html textarea support escape must be false and onblur ignore. -->
-            <th data-field="who" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
-            <th data-field="what" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
-            <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
-            <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
+            @if (ViewBag.IsAdmin)
+            {
+                <th data-field="state" class="fit" data-checkbox="true"></th>
+                <th data-field="id" class="fit" data-visible="false">ID</th>
+                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
+                <!-- For html textarea support escape must be false and onblur ignore. -->
+                <th data-field="who" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
+                <th data-field="what" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
+                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
+                <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
+            }
+            else
+            {
+                <th data-field="id" class="fit" data-visible="false">ID</th>
+                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm" data-sortable="true">Date</th>
+                <!-- For html textarea support escape must be false and onblur ignore. -->
+                <th data-field="who" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Who</th>
+                <th data-field="what" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">What</th>
+                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why</th>
+            }
         </tr>
     </thead>
 </table>
@@ -258,20 +274,23 @@
     </div>
 </div>
 
-<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red">
-        <i class="fa fa-pen"></i>
-    </a>
-    <ul>
-        <li>
-            <a id="selectionRemove" class="btn-floating bg-indigo">
-                <i class="fa fa-trash"></i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating bg-indigo" data-target="#newCelebrationModal" data-toggle="modal">
-                <i class="fa fa-plus"></i>
-            </a>
-        </li>
-    </ul>
-</div>
+@if (ViewBag.IsAdmin)
+{
+    <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red">
+            <i class="fa fa-pen"></i>
+        </a>
+        <ul>
+            <li>
+                <a id="selectionRemove" class="btn-floating bg-indigo">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating bg-indigo" data-target="#newCelebrationModal" data-toggle="modal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+}

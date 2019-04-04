@@ -8,5 +8,7 @@ namespace HHSBoard.Models.HomeViewModels
         public List<Unit> Units { get; set; }
 
         public List<Board> Boards { get; set; }
+
+        public bool IsAdmin { get; set; }
     }
 }

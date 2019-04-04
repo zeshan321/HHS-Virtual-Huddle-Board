@@ -149,6 +149,10 @@
 
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        }).on('all.bs.table', function (e, name, args) {
+            if (!@ViewBag.IsAdmin.ToString().ToLower()) {
+                $('.editable').editable('option', 'disabled', true);
+            }
         });
     }
 
@@ -199,23 +203,44 @@
        data-url="/Board/GetTableData?TableType=2&BoardID=@ViewBag.BoardID">
     <thead>
         <tr>
-            <th data-field="state" class="fit" data-checkbox="true"></th>
-            <th data-field="id" class="fit" data-visible="false">ID</th>
-            <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
-            <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
-            <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-            <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
-            <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
-            <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
-            <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
-            <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
-            <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
-            <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
-            <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
-            <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
-            <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
-            <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
-            <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
+            @if (ViewBag.IsAdmin)
+            {
+                <th data-field="state" class="fit" data-checkbox="true"></th>
+                <th data-field="id" class="fit" data-visible="false">ID</th>
+                <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
+                <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
+                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
+                <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
+                <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
+                <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
+                <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
+                <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
+                <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
+                <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
+                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
+                <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
+                <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
+                <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
+                <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
+            }
+            else
+            {
+                <th data-field="id" class="fit" data-visible="false">ID</th>
+                <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
+                <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
+                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
+                <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
+                <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
+                <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
+                <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
+                <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
+                <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
+                <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
+                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
+                <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
+                <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
+                <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
+            }
         </tr>
     </thead>
 </table>
@@ -321,20 +346,23 @@
     </div>
 </div>
 
-<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red">
-        <i class="fa fa-pen"></i>
-    </a>
-    <ul>
-        <li>
-            <a id="selectionRemove" class="btn-floating bg-indigo">
-                <i class="fa fa-trash"></i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating bg-indigo" data-target="#newWIPModal" data-toggle="modal">
-                <i class="fa fa-plus"></i>
-            </a>
-        </li>
-    </ul>
-</div>
+@if (ViewBag.IsAdmin)
+{
+    <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red">
+            <i class="fa fa-pen"></i>
+        </a>
+        <ul>
+            <li>
+                <a id="selectionRemove" class="btn-floating bg-indigo">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating bg-indigo" data-target="#newWIPModal" data-toggle="modal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+}

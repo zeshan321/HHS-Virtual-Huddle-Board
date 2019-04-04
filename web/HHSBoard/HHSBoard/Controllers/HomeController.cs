@@ -31,37 +31,81 @@ namespace HHSBoard.Controllers
             var user = await _userManager.GetUserAsync(User);
             ViewBag.name = user.Email;
 
-            // TODO: Only show boards user has access to
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+
+            if (isAdmin)
+            {
+                return View(new HomeIndexViewModel
+                {
+                    Units = await _applicationDbContext.Units.ToListAsync(),
+                    Boards = await _applicationDbContext.Boards.ToListAsync(),
+                    IsAdmin = isAdmin
+                });
+            }
+
+            var unitsAccess = await _applicationDbContext.UnitAccesses.Where(u => u.UserID.Equals(user.Id)).Select(u => u.UnitID).ToListAsync();
             return View(new HomeIndexViewModel
             {
                 Units = await _applicationDbContext.Units.ToListAsync(),
-                Boards = await _applicationDbContext.Boards.ToListAsync()
+                Boards = await _applicationDbContext.Boards.Where(b => unitsAccess.Contains(b.UnitID)).ToListAsync(),
+                IsAdmin = isAdmin
             });
         }
 
         public async Task<IActionResult> SearchBoards(BoardTableModel boardTableModel)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var unitsAccess = await _applicationDbContext.UnitAccesses.Where(u => u.UserID.Equals(user.Id)).Select(u => u.UnitID).ToListAsync();
             var search = boardTableModel.Search?.ToUpper().Trim();
             
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var units = _applicationDbContext.Units.Where(u => u.Name.ToUpper().Contains(search));
-                var boards = _applicationDbContext.Boards.Where(b => b.Name.ToUpper().Contains(search)).Include(b => b.Unit);
-
-                return Json(new HomeIndexViewModel
+                if (isAdmin)
                 {
-                    Units = await units.ToListAsync(),
-                    Boards = await boards.ToListAsync()
-                });
+                    var units = _applicationDbContext.Units.Where(u => u.Name.ToUpper().Contains(search));
+                    var boards = _applicationDbContext.Boards.Where(b => b.Name.ToUpper().Contains(search)).Include(b => b.Unit);
+
+                    return Json(new HomeIndexViewModel
+                    {
+                        Units = await units.ToListAsync(),
+                        Boards = await boards.ToListAsync()
+                    });
+                }
+                else
+                {
+                    var units = _applicationDbContext.Units.Where(u => u.Name.ToUpper().Contains(search));
+                    var boards = _applicationDbContext.Boards.Where(b => b.Name.ToUpper().Contains(search) && unitsAccess.Contains(b.UnitID)).Include(b => b.Unit);
+
+                    return Json(new HomeIndexViewModel
+                    {
+                        Units = await units.ToListAsync(),
+                        Boards = await boards.ToListAsync()
+                    });
+                }
             }
 
-            return Json(new HomeIndexViewModel
+            if (isAdmin)
             {
-                Units = await _applicationDbContext.Units.ToListAsync(),
-                Boards = await _applicationDbContext.Boards.ToListAsync()
-            });
+                return Json(new HomeIndexViewModel
+                {
+                    Units = await _applicationDbContext.Units.ToListAsync(),
+                    Boards = await _applicationDbContext.Boards.ToListAsync()
+                });
+            }
+            else
+            {
+                return Json(new HomeIndexViewModel
+                {
+                    Units = await _applicationDbContext.Units.ToListAsync(),
+                    Boards = await _applicationDbContext.Boards.Where(b => unitsAccess.Contains(b.UnitID)).ToListAsync()
+                });
+            }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateBoard(CreateBoardModel createBoardModel)
         {
@@ -107,6 +151,7 @@ namespace HHSBoard.Controllers
             return Json(newBoard);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> DeleteBoard(DeleteBoardModel deleteBoardModel)
         {

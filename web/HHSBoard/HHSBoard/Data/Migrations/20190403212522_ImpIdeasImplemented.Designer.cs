@@ -12,9 +12,10 @@ using System;
 namespace HHSBoard.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190403212522_ImpIdeasImplemented")]
+    partial class ImpIdeasImplemented
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -201,25 +202,6 @@ namespace HHSBoard.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Units");
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.UnitAccess", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("UnitID");
-
-                    b.Property<string>("UserID")
-                        .IsRequired();
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("UnitID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("UnitAccesses");
                 });
 
             modelBuilder.Entity("HHSBoard.Data.WIP", b =>
@@ -466,19 +448,6 @@ namespace HHSBoard.Data.Migrations
                     b.HasOne("HHSBoard.Data.Board", "Board")
                         .WithMany()
                         .HasForeignKey("BoardID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.UnitAccess", b =>
-                {
-                    b.HasOne("HHSBoard.Data.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HHSBoard.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

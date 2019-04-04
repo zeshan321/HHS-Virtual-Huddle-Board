@@ -93,7 +93,7 @@
                             var name = item.name;
                             var unitName = item.unit.name;
 
-                            $(".row").append(boardTemplate(@Model.IsAdmin,id, name, unitName));
+                            $(".row").append(boardTemplate(id, name, unitName));
                         }
                     } else {
                         $(".row").append('<h3 style="text-align: center;">No boards found matching your search query.</h3>');
@@ -110,8 +110,8 @@
         });
     });
 
-    function boardTemplate(admin, ID, name, unit) {
-        if (admin) {
+    function boardTemplate(ID, name, unit) {
+        if (@Model.IsAdmin.ToString().ToLower()) {
             return [
                 '<div id="' + ID + '" class="col-sm-6 col-md-4">',
                 '<div class="thumbnail">',
@@ -153,7 +153,7 @@
         foreach (var board in Model.Boards)
         {
             <script>
-            $(".row").append(boardTemplate(@Model.IsAdmin.ToString().ToLower(),@board.ID, '@board.Name', '@board.Unit.Name'));
+            $(".row").append(boardTemplate(@board.ID, '@board.Name', '@board.Unit.Name'));
             </script>
         }
     }

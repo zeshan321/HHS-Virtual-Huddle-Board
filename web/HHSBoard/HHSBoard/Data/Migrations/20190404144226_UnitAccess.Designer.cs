@@ -12,9 +12,10 @@ using System;
 namespace HHSBoard.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190404144226_UnitAccess")]
+    partial class UnitAccess
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,48 +97,6 @@ namespace HHSBoard.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Defaults");
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.ImpIdeasImplemented", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BoardID");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<DateTime>("DateComplete");
-
-                    b.Property<string>("DateEnterIntoDatabase");
-
-                    b.Property<string>("EightWs");
-
-                    b.Property<bool>("IsPtFamilyInvovlmentOpportunity");
-
-                    b.Property<string>("JustDoIt");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Owner");
-
-                    b.Property<int?>("PickChart");
-
-                    b.Property<string>("Pillar");
-
-                    b.Property<string>("Problem");
-
-                    b.Property<bool>("ProcessObservationCreated");
-
-                    b.Property<string>("Solution");
-
-                    b.Property<bool>("WorkCreated");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("BoardID");
-
-                    b.ToTable("ImpIdeasImplemented");
                 });
 
             modelBuilder.Entity("HHSBoard.Data.NewImpOp", b =>
@@ -438,14 +397,6 @@ namespace HHSBoard.Data.Migrations
                 });
 
             modelBuilder.Entity("HHSBoard.Data.Celebration", b =>
-                {
-                    b.HasOne("HHSBoard.Data.Board", "Board")
-                        .WithMany()
-                        .HasForeignKey("BoardID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("HHSBoard.Data.ImpIdeasImplemented", b =>
                 {
                     b.HasOne("HHSBoard.Data.Board", "Board")
                         .WithMany()

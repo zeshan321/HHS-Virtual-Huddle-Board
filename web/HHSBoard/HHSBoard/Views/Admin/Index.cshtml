@@ -1,6 +1,155 @@
-﻿@{
+﻿@model List<HHSBoard.Models.AdminViewModels.UserViewModel>
+@{
     ViewData["Title"] = "Admin Page";
 }
 
-<h2>This is the admin page</h2>
-<h4>Only admin users can view this page!</h4>
+<script>
+    var $table;
+
+    $(function () {
+        $table = $('#table');
+
+        initTable();
+
+        $("table").on("click", "[name='adminCheckbox']", function (e) {
+            var checkbox = $(this);
+            var userID = checkbox.attr("data-user-id");
+
+            $.ajax({
+                type: "POST",
+                url: "/Admin/UpdateAdminRole",
+                data: { ID: userID, IsAdmin: !checkbox.checked },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully updated user role.'
+                    }, {
+                            type: 'success'
+                    });
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+        });
+    });
+
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        }).on('all.bs.table', function (e, name, args) {
+                var select = $(".js-example-basic-multiple").select2({ width: '100%' });
+
+                select.on('select2:select', function (e) {
+                    var option = $($(this)[0][0]);
+                    var userID = option.attr("data-user-id");
+                    var unitID = option.val();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Admin/UpdateUnitAccess",
+                        data: { UserID: userID, UnitID: unitID, Adding: true },
+                        dataType: "json",
+                        success: function (data) {
+                            $.notify({
+                                message: 'Successfully added unit to user.'
+                            }, {
+                                    type: 'success'
+                                });
+                        },
+                        error: function (data) {
+                            var response = data.responseJSON;
+
+                            $.notify({
+                                message: response
+                            }, {
+                                    type: 'danger'
+                                });
+                        }
+                    });
+                });
+
+                select.on('select2:unselect', function (e) {
+                    var option = $($(this)[0][0]);
+                    var userID = option.attr("data-user-id");
+                    var unitID = option.val();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Admin/UpdateUnitAccess",
+                        data: { UserID: userID, UnitID: unitID, Adding: false },
+                        dataType: "json",
+                        success: function (data) {
+                            $.notify({
+                                message: 'Successfully removed unit from user.'
+                            }, {
+                                    type: 'success'
+                                });
+                        },
+                        error: function (data) {
+                            var response = data.responseJSON;
+
+                            $.notify({
+                                message: response
+                            }, {
+                                    type: 'danger'
+                                });
+                        }
+                    });
+                });
+        });
+    }
+
+    function adminFormatter(value, row, index) {
+        if (value) {
+            return '<input data-user-id="' + row.id + '" name="adminCheckbox" type="checkbox" value="1" checked>';
+        } else {
+            return '<input data-user-id="' + row.id + '" name="adminCheckbox" type="checkbox" value="0">';
+        }
+    }
+    
+    function unitFormatter(value, row, index) {
+        var result = '<select class="js-example-basic-multiple" name="units[]" multiple="multiple">';
+
+        for (var i = 0; i < row.adminUnitViewModels.length; i++) {
+            var item = row.adminUnitViewModels[i];
+
+            result = result + "<option data-user-id='" + row.id + "' value='" + item.id + "' " + ((item.hasAccess) ? "selected" : "") + ">" + item.name + "</option>"
+        }
+
+        return result + "</select>"
+    }
+</script>
+
+<div class="page-header">
+    <h1>Users</h1>
+</div>
+
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id" ,
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-url="/Admin/GetUserData">
+    <thead>
+        <tr>
+            <th data-field="id" data-visible="false" class="fit">ID</th>
+            <th data-field="username" class="fit">Username</th>
+            <th data-field="isAdmin" class="fit" data-formatter="adminFormatter">Admin</th>
+            <th data-field="units" class="fit" data-formatter="unitFormatter">Units</th>
+        </tr>
+    </thead>
+</table>

@@ -35,8 +35,8 @@
             });
             return false;
         });
-        
-       
+
+
         $("#deleteBoardForm").submit(function (e) {
             var boardID = $("#deleteBoardID").val();
 
@@ -50,7 +50,7 @@
                         message: 'Successfully deleted board.'
                     }, {
                             type: 'success'
-                    });
+                        });
 
                     $("#" + boardID).remove();
                     $("#deleteBoardModal").modal("hide");
@@ -71,8 +71,8 @@
         $('#deleteBoardModal').on('show.bs.modal', function (e) {
             var BoardID = $(e.relatedTarget).data('boardid');
             var BoardName = $(e.relatedTarget).data('boardname');
-            $(e.currentTarget).find('input[id="deleteBoardID"]').val(BoardID); 
-            $(e.currentTarget).find('h5[id="deleteBoardName"]').text(BoardName); 
+            $(e.currentTarget).find('input[id="deleteBoardID"]').val(BoardID);
+            $(e.currentTarget).find('h5[id="deleteBoardName"]').text(BoardName);
         });
 
         $("#boardSearch").keyup(function () {
@@ -86,13 +86,17 @@
                 success: function (data) {
                     $(".row").empty();
 
-                    for (var i = 0; i < data.boards.length; i++) {
-                        var item = data.boards[i];
-                        var id = item.id;
-                        var name = item.name;
-                        var unitName = item.unit.name;
+                    if (data.boards.length > 0) {
+                        for (var i = 0; i < data.boards.length; i++) {
+                            var item = data.boards[i];
+                            var id = item.id;
+                            var name = item.name;
+                            var unitName = item.unit.name;
 
-                        $(".row").append(boardTemplate(id, name, unitName));
+                            $(".row").append(boardTemplate(@Model.IsAdmin,id, name, unitName));
+                        }
+                    } else {
+                        $(".row").append('<h3 style="text-align: center;">No boards found matching your search query.</h3>');
                     }
                 },
                 error: function (data) {
@@ -106,18 +110,31 @@
         });
     });
 
-    function boardTemplate(ID, name, unit) {
-        return [
-            '<div id="' + ID + '" class="col-sm-6 col-md-4">',
-            '<div class="thumbnail">',
-            '<div class="caption">',
-            '<h3 class="board-name-text">' + name + '<br /><small>' + unit + '</small></h3>',
-            '<p><a href="/Board?BoardID=' + ID + '" class="btn btn-primary" role="button" data-boardID="' + ID + '">View</a>',
-            '<a href="/#deleteBoardModal" class="btn btn-danger" data-toggle="modal" role="button" value="" data-boardName="' + name + '" data-boardID="' + ID + '">Delete</a></p > ',
-            '</div>',
-            '</div>',
-            '</div>'
-        ].join('');
+    function boardTemplate(admin, ID, name, unit) {
+        if (admin) {
+            return [
+                '<div id="' + ID + '" class="col-sm-6 col-md-4">',
+                '<div class="thumbnail">',
+                '<div class="caption">',
+                '<h3 class="board-name-text">' + name + '<br /><small>' + unit + '</small></h3>',
+                '<p><a href="/Board?BoardID=' + ID + '" class="btn btn-primary" role="button" data-boardID="' + ID + '">View</a>',
+                '<a href="/#deleteBoardModal" class="btn btn-danger" data-toggle="modal" role="button" value="" data-boardName="' + name + '" data-boardID="' + ID + '">Delete</a></p >',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('');
+        } else {
+            return [
+                '<div id="' + ID + '" class="col-sm-6 col-md-4">',
+                '<div class="thumbnail">',
+                '<div class="caption">',
+                '<h3 class="board-name-text">' + name + '<br /><small>' + unit + '</small></h3>',
+                '<p><a href="/Board?BoardID=' + ID + '" class="btn btn-primary" role="button" data-boardID="' + ID + '">View</a>',
+                '</div>',
+                '</div>',
+                '</div>'
+            ].join('');
+        }
     }
 </script>
 
@@ -131,11 +148,18 @@
 </div>
 
 <div class="row">
-    @foreach (var board in Model.Boards)
+    @if (Model.Boards.Any())
     {
-        <script>
-            $(".row").append(boardTemplate(@board.ID, '@board.Name', '@board.Unit.Name'));
-        </script>
+        foreach (var board in Model.Boards)
+        {
+            <script>
+            $(".row").append(boardTemplate(@Model.IsAdmin.ToString().ToLower(),@board.ID, '@board.Name', '@board.Unit.Name'));
+            </script>
+        }
+    }
+    else
+    {
+        <h3 style="text-align: center;">You currently have no boards.</h3>
     }
 </div>
 
@@ -195,7 +219,7 @@
                     <div class="form-group">
                         <h5 id="deleteBoardName" class="lead text-danger text-center"></h5>
                         <input type="hidden" class="form-control" id="deleteBoardID">
-                    </div>     
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -207,8 +231,11 @@
     </div>
 </div>
 
-<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-    <a class="btn-floating btn-large red" data-target="#newBoardModal" data-toggle="modal">
-        <i class="fa fa-plus"></i>
-    </a>
-</div>
+@if (Model.IsAdmin)
+{
+    <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red" data-target="#newBoardModal" data-toggle="modal">
+            <i class="fa fa-plus"></i>
+        </a>
+    </div>
+}

@@ -387,12 +387,12 @@ namespace HHSBoard.Controllers
             return PartialView();
         }
 
-        [Authorize(Roles = "Admin")]
         public PartialViewResult ImpIdeasImplementedTable()
         {
             return PartialView();
         }
-        
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePurpose(PurposeUpdateModel purposeUpdateModel)
         {
             var board = await _applicationDbContext.Boards.SingleOrDefaultAsync(b => b.ID == purposeUpdateModel.BoardID);

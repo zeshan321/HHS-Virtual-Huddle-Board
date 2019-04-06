@@ -40,6 +40,8 @@ namespace HHSBoard.Data
 
         public DbSet<ImpIdeasImplemented> ImpIdeasImplemented { get; set; }
 
+        public DbSet<ChangeRequest> ChangeRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

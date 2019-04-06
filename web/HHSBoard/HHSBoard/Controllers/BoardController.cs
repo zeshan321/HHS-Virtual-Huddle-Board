@@ -1,6 +1,7 @@
 ﻿using HHSBoard.Data;
 using HHSBoard.Helpers;
 using HHSBoard.Models;
+using HHSBoard.Models.BoardViewModels;
 using HHSBoard.Models.CelebrationViewModels;
 using HHSBoard.Models.ImpIdeasImplementedViewModels;
 using HHSBoard.Models.NewImpOpViewModels;
@@ -11,7 +12,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -74,12 +78,15 @@ namespace HHSBoard.Controllers
             return Json("No table found.");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddCeleration(CreateCelebrationModel createCelebrationModel)
         {
-            var board = _applicationDbContext.Boards.Where(b => b.ID == createCelebrationModel.BoardID);
-            if (!board.Any())
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+
+            var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createCelebrationModel.BoardID);
+            if (board == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json($"No board found.");
@@ -91,14 +98,38 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            _applicationDbContext.Celebrations.Add(new Celebration
+            if (isAdmin)
             {
-                Who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who),
-                What = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What),
-                Why = createCelebrationModel.Why ?? HttpUtility.HtmlEncode(createCelebrationModel.Why),
-                Date = createCelebrationModel.Date.Value,
-                BoardID = createCelebrationModel.BoardID
-            });
+                _applicationDbContext.Celebrations.Add(new Celebration
+                {
+                    Who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who),
+                    What = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What),
+                    Why = createCelebrationModel.Why ?? HttpUtility.HtmlEncode(createCelebrationModel.Why),
+                    Date = createCelebrationModel.Date.Value,
+                    BoardID = createCelebrationModel.BoardID
+                });
+            }
+            else
+            {
+                dynamic json = new JObject();
+                json.id = Guid.NewGuid().ToString();
+                json.who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who);
+                json.what = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What);
+                json.why = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What);
+                json.date = createCelebrationModel.Date.Value;
+                json.BoardID = createCelebrationModel.BoardID;
+
+                _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                {
+                    Username = user.UserName,
+                    ChangeRequestType = ChangeRequestType.CREATE,
+                    TableName = TableType.CELEBRATION,
+                    AssociatedID = -1,
+                    AssociatedName = null,
+                    BoardID = board.ID,
+                    Values = json.ToString()
+                });
+            }
 
             await _applicationDbContext.SaveChangesAsync();
             return Json("Created");
@@ -227,36 +258,82 @@ namespace HHSBoard.Controllers
 
         public async Task<IActionResult> DeleteFields(FieldDeleteModel fieldDeleteModel)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+
             if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json("No fields sent to be deleted.");
             }
 
+            // UUIDs in the list are change requests. Remvoe them and delete from change requests table.
+            List<string> toRemove = new List<string>();
+            foreach (var changeRequestDelete in fieldDeleteModel.Delete)
+            {
+                if (Guid.TryParse(changeRequestDelete, out var guid))
+                {
+                    toRemove.Add(changeRequestDelete);
+
+                    var changeRequests = _applicationDbContext.ChangeRequests.Where(c => c.Values.Contains(guid.ToString()));
+                    _applicationDbContext.ChangeRequests.RemoveRange(changeRequests);
+                    await _applicationDbContext.SaveChangesAsync();
+                }
+            }
+            foreach (var remove in toRemove)
+            {
+                fieldDeleteModel.Delete.Remove(remove);
+            }
+
             if (fieldDeleteModel.TableType == TableType.CELEBRATION)
             {
-                var celebrations = _applicationDbContext.Celebrations.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
-                _applicationDbContext.Celebrations.RemoveRange(celebrations);
+                if (isAdmin)
+                {
+                    var celebrations = _applicationDbContext.Celebrations.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
+                    _applicationDbContext.Celebrations.RemoveRange(celebrations);
+                }
+                else
+                {
+                    var previousChangeRequests = _applicationDbContext.ChangeRequests.Where(c => fieldDeleteModel.Delete.Contains(c.AssociatedID.ToString()));
+                    _applicationDbContext.ChangeRequests.RemoveRange(previousChangeRequests);
+
+                    foreach (var idToDelete in fieldDeleteModel.Delete)
+                    {
+                        var id = int.Parse(idToDelete);
+
+                        _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                        {
+                            Username = user.UserName,
+                            ChangeRequestType = ChangeRequestType.DELETE,
+                            TableName = TableType.CELEBRATION,
+                            AssociatedID = id,
+                            AssociatedName = null,
+                            BoardID = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID.Equals(id)).BoardID,
+                            Values = ""
+                        });
+                    }
+                }
 
                 await _applicationDbContext.SaveChangesAsync();
             }
             else if (fieldDeleteModel.TableType == TableType.WIP)
             {
-                var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
                 _applicationDbContext.WIPs.RemoveRange(wip);
 
                 await _applicationDbContext.SaveChangesAsync();
             }
             else if (fieldDeleteModel.TableType == TableType.NEWIMPOP)
             {
-                var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
                 _applicationDbContext.NewImpOps.RemoveRange(newImpOp);
 
                 await _applicationDbContext.SaveChangesAsync();
             }
             else if (fieldDeleteModel.TableType == TableType.IMPIDEAS)
             {
-                var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.Where(c => fieldDeleteModel.Delete.Contains(c.ID));
+                var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
                 _applicationDbContext.ImpIdeasImplemented.RemoveRange(impIdeasImplemented);
 
                 await _applicationDbContext.SaveChangesAsync();
@@ -271,28 +348,63 @@ namespace HHSBoard.Controllers
             return Json("Deleted.");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> UpdateField(FieldUpdateModel fieldUpdateModel)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+
             if (fieldUpdateModel.TableType == TableType.CELEBRATION)
             {
-                var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var memberType = proptery.PropertyType;
-                var nonNullType = Nullable.GetUnderlyingType(memberType);
-                if (nonNullType != null)
-                    memberType = nonNullType;
-                var converted = ConvertType(memberType, fieldUpdateModel.Value);
-
-                if (converted != null)
+                if (isAdmin)
                 {
-                    proptery.SetValue(celebration, Convert.ChangeType(converted, memberType), null);
+                    var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                    var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var memberType = proptery.PropertyType;
+                    var nonNullType = Nullable.GetUnderlyingType(memberType);
+                    if (nonNullType != null)
+                        memberType = nonNullType;
+                    var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
+
+                    if (converted != null)
+                    {
+                        proptery.SetValue(celebration, Convert.ChangeType(converted, memberType), null);
+                    }
+                    else
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
+                    }
                 }
                 else
                 {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
+                    dynamic jObject = new JObject();
+                    jObject.Name = fieldUpdateModel.Name;
+                    jObject.Value = fieldUpdateModel.Value ?? HttpUtility.HtmlEncode(fieldUpdateModel.Value);
+
+                    var changeRequestType = ChangeRequestType.UPDATE;
+                    var changeRequest = await _applicationDbContext.ChangeRequests.SingleOrDefaultAsync(c => c.AssociatedID.Equals(fieldUpdateModel.Pk) && c.AssociatedName.Equals(fieldUpdateModel.Name) && c.TableName.Equals(TableType.CELEBRATION));
+                    if (changeRequest != null)
+                    {
+                        changeRequest.Values = jObject.ToString();
+                    }
+                    else
+                    {
+                        _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                        {
+                            Username = user.UserName,
+                            ChangeRequestType = changeRequestType,
+                            TableName = TableType.CELEBRATION,
+                            AssociatedID = fieldUpdateModel.Pk,
+                            AssociatedName = fieldUpdateModel.Name,
+                            BoardID = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID.Equals(fieldUpdateModel.Pk)).BoardID,
+                            Values = jObject.ToString()
+                        });
+                    }
+
+                    await _applicationDbContext.SaveChangesAsync();
+                    return Json("Change requested.");
                 }
             }
             else if (fieldUpdateModel.TableType == TableType.WIP)
@@ -303,7 +415,7 @@ namespace HHSBoard.Controllers
                 var nonNullType = Nullable.GetUnderlyingType(memberType);
                 if (nonNullType != null)
                     memberType = nonNullType;
-                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
 
                 if (converted != null)
                 {
@@ -323,7 +435,7 @@ namespace HHSBoard.Controllers
                 var nonNullType = Nullable.GetUnderlyingType(memberType);
                 if (nonNullType != null)
                     memberType = nonNullType;
-                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
 
                 if (converted != null)
                 {
@@ -343,7 +455,7 @@ namespace HHSBoard.Controllers
                 var nonNullType = Nullable.GetUnderlyingType(memberType);
                 if (nonNullType != null)
                     memberType = nonNullType;
-                var converted = ConvertType(memberType, fieldUpdateModel.Value);
+                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
 
                 if (converted != null)
                 {
@@ -411,6 +523,7 @@ namespace HHSBoard.Controllers
 
         public async Task<object> GetViewModel(BoardTableModel boardTableViewModel)
         {
+            var user = await _userManager.GetUserAsync(User);
             var search = boardTableViewModel.Search?.ToUpper().Trim();
 
             if (boardTableViewModel.TableType == TableType.CELEBRATION)
@@ -515,30 +628,14 @@ namespace HHSBoard.Controllers
         {
             return (T)await GetViewModel(boardTableViewModel);
         }
+        
 
-        public object ConvertType(Type type, string value)
+        public async Task<IActionResult> GetChangeRequests(GetChangeRequestModel getChangeRequestModel)
         {
-            if (type == typeof(DateTime))
-            {
-                if (DateTime.TryParse(value, out DateTime date))
-                {
-                    return date;
-                }
+            var user = await _userManager.GetUserAsync(User);
+            var changeRequests = await _applicationDbContext.ChangeRequests.Where(c => c.Username.Equals(user.UserName) && c.BoardID.Equals(getChangeRequestModel.BoardID) && c.TableName.Equals(getChangeRequestModel.TableType)).ToListAsync();
 
-                return null;
-            }
-            else if (type == typeof(PickChart))
-            {
-                return (PickChart)int.Parse(value);
-            }
-            else if (type == typeof(bool))
-            {
-                return int.Parse(value);
-            }
-            else
-            {
-                return HttpUtility.HtmlEncode(value);
-            }
+            return Json(changeRequests);
         }
     }
 }

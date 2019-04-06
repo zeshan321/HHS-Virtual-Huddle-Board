@@ -17,6 +17,8 @@
     <Compile Remove="Data\Migrations\20190402142319_NewImpOps.Designer.cs" />
     <Compile Remove="Data\Migrations\20190402142451_NewImpOps.cs" />
     <Compile Remove="Data\Migrations\20190402142451_NewImpOps.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190405001416_ChangeRequestUpdateBoard.cs" />
+    <Compile Remove="Data\Migrations\20190405001416_ChangeRequestUpdateBoard.Designer.cs" />
   </ItemGroup>
 
 

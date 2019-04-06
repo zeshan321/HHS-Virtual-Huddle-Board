@@ -1,0 +1,178 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    ins {
+        text-decoration: none;
+        background-color: #d4fcbc;
+    }
+
+    del {
+        text-decoration: line-through;
+        background-color: #fbb6c2;
+        color: #555;
+    }
+</style>
+
+<script>
+    var $table;
+
+    $(function () {
+        $table = $('#table');
+
+        initTable();
+    });
+
+    function initTable() {
+        window.operateEvents = {
+            'click .approve': function (e, value, row, index) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ChangeRequest/ApproveChange",
+                    data: { changeRequestID: row.id },
+                        dataType: "json",
+                        success: function (data) {
+                            $.notify({
+                                message: 'Successfully approved change request.'
+                            }, {
+                                    type: 'success'
+                            });
+
+                            $table.bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            });
+                        },
+                        error: function (data) {
+                            var response = data.responseJSON;
+
+                            $.notify({
+                                message: response
+                            }, {
+                                    type: 'danger'
+                            });
+                        }
+                });
+            },
+            'click .reject': function (e, value, row, index) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ChangeRequest/RejectChange",
+                    data: { changeRequestID: row.id },
+                    dataType: "json",
+                    success: function (data) {
+                        $.notify({
+                            message: 'Successfully rejected change request.'
+                        }, {
+                                type: 'success'
+                            });
+
+                        $table.bootstrapTable('remove', {
+                            field: 'id',
+                            values: [row.id]
+                        });
+                    },
+                    error: function (data) {
+                        var response = data.responseJSON;
+
+                        $.notify({
+                            message: response
+                        }, {
+                                type: 'danger'
+                            });
+                    }
+                });
+            }
+        }
+
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+        });
+    }
+
+    function jsonFormatter(value, row, index) {
+        return jsonFormat(value);
+    }
+
+    function statusFormatter(value, row, index) {
+        if (value === 2) {
+            return '<span class="label label-danger">Delete</span>';
+        } else if (value === 1) {
+            return '<span class="label label-success">Add</span>';
+        } else if (value === 0) {
+            return '<span class="label label-warning">Modify</span>';
+        } else {
+            return '<span class="label label-default">' + value + '</span>';
+        }
+    }
+
+    function jsonFormat(value) {
+        if (value == "") {
+            return value;
+        }
+
+        var element = "<dl>";
+
+        $.each(JSON.parse(value), function (key, value) {
+            element = element + "<dt>" + key + "</dt>"
+
+            if (value != "") {
+                element = element + "<dd>" + value + "</dd>";
+            } else {
+                element = element + "";
+            }
+        });
+
+        return element + "</dl>";
+    }
+
+    function diffFormatter(value, row, index) {
+        return htmldiff(jsonFormat(row.previousValues), jsonFormat(row.values));
+    }
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="approve btn btn-success" href="javascript:void(0)" title="Approve">',
+            '<i class="fa fa-check"></i>',
+            '</a>',
+            '',
+            '<a class="reject btn btn-danger" href="javascript:void(0)" title="Reject">',
+            '<i class="fa fa-ban"></i>',
+            '</a>'
+        ].join('')
+    }
+</script>
+
+<div class="page-header">
+    <h1>Change Requests</h1>
+</div>
+
+<table id="table"
+       data-pagination="true"
+       data-show-export="true"
+       data-search="true"
+       data-mobile-responsive="true"
+       data-check-on-init="true"
+       data-id-field="id" ,
+       data-show-toggle="true"
+       data-show-refresh="true"
+       data-auto-refresh="true"
+       data-show-fullscreen="true"
+       data-side-pagination="server"
+       data-url="/ChangeRequest/GetChangeRequestData">
+    <thead>
+        <tr>
+            <th data-field="id" data-visible="false" class="fit">ID</th>
+            <th data-field="changeRequestType" data-formatter="statusFormatter" class="fit">Change Type</th>
+            <th data-field="tableName" class="fit">Table Name</th>
+            <th data-field="username" class="fit">Username</th>
+            <th data-field="previousValues" data-formatter="jsonFormatter" class="fit">Current</th>
+            <th data-field="values" data-formatter="jsonFormatter" class="fit">Requested</th>
+            <th data-formatter="diffFormatter" class="fit">Difference</th>
+            <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents" class="fit"></th>
+        </tr>
+    </thead>
+</table>
+

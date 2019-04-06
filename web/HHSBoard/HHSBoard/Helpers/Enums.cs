@@ -16,4 +16,11 @@
         Possible = 2,
         Kibosh = 3
     }
+
+    public enum ChangeRequestType
+    {
+        UPDATE = 0,
+        CREATE = 1,
+        DELETE = 2
+    }
 }

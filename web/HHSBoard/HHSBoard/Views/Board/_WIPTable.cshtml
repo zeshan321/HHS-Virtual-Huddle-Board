@@ -29,16 +29,26 @@
                 BoardID: @ViewBag.BoardID, TableType: 2, Delete: globalDeleteList },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully deleted.'
-                    }, {
-                            type: 'success'
-                    });
+                    if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully deleted.'
+                        }, {
+                                type: 'success'
+                        });
 
-                    $table.bootstrapTable('remove', {
-                        field: 'id',
-                        values: globalDeleteList
-                    });
+                        $table.bootstrapTable('remove', {
+                            field: 'id',
+                            values: globalDeleteList
+                        });
+                    } else {
+                        $.notify({
+                            message: 'Successfully requested to delete record.'
+                        }, {
+                                type: 'success'
+                            });
+
+                        GetChangeRequests();
+                    }
 
                     $("#deleteModal").modal("hide");
                 },
@@ -82,8 +92,8 @@
             var createDate = $("#createDate").editable("getValue")["createDate"];
             var createProblem = $("#createProblem").editable("getValue")["createProblem"];
             var createEightWs = $("#createEightWs").editable("getValue")["createEightWs"];
-            var createStrategicGoals = $("#createStrategicGoals").editable("getValue")["createSaftey"];
-            var createIsPtFamilyInvovlmentOpportunity = $("#createIsPtFamilyInvovlmentOpportunity").editable("getValue")["createIsPtFamilyInvovlmentOpportunity"];
+            var createStrategicGoals = $("#createStrategicGoals").editable("getValue")["createStrategicGoals"];
+            var createIsPtFamilyInvovlmentOpportunity = $("#createIsPtFamilyInvovlmentOpportunity").editable("getValue")["createIsPtFamilyInvovlmentOpportunity"] === "1";
             var createPickChart = $("#createPickChart").editable("getValue")["createPickChart"];
             var createDateAssigned = $("#createDateAssigned").editable("getValue")["createDateAssigned"];
             var createStaffWorkingOnOpportunity = $("#createStaffWorkingOnOpportunity").editable("getValue")["createStaffWorkingOnOpportunity"];
@@ -114,11 +124,19 @@
                 },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully created WIP.'
-                    }, {
-                            type: 'success'
-                    });
+                    if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully created WIP.'
+                        }, {
+                                type: 'success'
+                            });
+                    } else {
+                        $.notify({
+                            message: 'Successfully requested to create new WIP.'
+                        }, {
+                                type: 'success'
+                            });
+                    }
 
                     location.reload();
                 },
@@ -150,9 +168,7 @@
         $table.bootstrapTable('destroy').bootstrapTable({
             exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
         }).on('all.bs.table', function (e, name, args) {
-            if (!@ViewBag.IsAdmin.ToString().ToLower()) {
-                $('.editable').editable('option', 'disabled', true);
-            }
+            GetChangeRequests();
         });
     }
 
@@ -180,6 +196,52 @@
                 });
         }
     }
+    function GetChangeRequests() {
+        $.ajax({
+            type: "POST",
+            url: "/Board/GetChangeRequests",
+            data: {
+                BoardID: @ViewBag.BoardID, TableType: 2 },
+                dataType: "json",
+            success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var item = data[i];
+                        var changeRequestType = data[i].changeRequestType;
+
+                        if (changeRequestType == 0) {
+                            var row = $table.bootstrapTable('getRowByUniqueId', item.associatedID);
+                            var htmlRow = $("[data-uniqueid=" + item.associatedID + "]").find("[data-name='" + item.associatedName + "']");
+                            var parent = htmlRow.parent();
+                            parent.css("background-color", "#A9A9A9");
+
+                            var value = JSON.parse(item.values).Value;
+                            htmlRow.editable("setValue", value);
+                        }
+
+                        if (changeRequestType == 1) {
+                            var value = JSON.parse(item.values);
+                            var id = value.id;
+
+                            if (!$("tr[data-uniqueid='" + id + "']").length) {
+                                $table.bootstrapTable('insertRow', { index: $table.bootstrapTable('getData').length, row: value });
+                            }
+                            //$table.bootstrapTable('append', value);
+
+                            var parent = $("tr[data-uniqueid='" + id + "']");
+                            parent.css("background-color", "#A9A9A9");
+                        }
+                        
+                        if (changeRequestType == 2) {
+                            var row = $table.bootstrapTable('getRowByUniqueId', item.associatedID);
+                            var htmlRow = $("[data-uniqueid=" + item.associatedID + "]").css("background-color", "#F08080");
+                        }
+                    }
+                },
+                error: function (data) {
+                   
+                }
+            });
+    }
 </script>
 
 <div class="page-header">
@@ -192,8 +254,9 @@
        data-search="true"
        data-mobile-responsive="true"
        data-check-on-init="true"
-       data-id-field="id" ,
-       data-editable-url="/Board/UpdateField?TableType=2"
+       data-unique-id="id"
+       data-id-field="id"
+       data-editable-url="/Board/UpdateField?TableType=2&BoardID=@ViewBag.BoardID"
        data-show-toggle="true"
        data-show-refresh="true"
        data-auto-refresh="true"
@@ -203,44 +266,23 @@
        data-url="/Board/GetTableData?TableType=2&BoardID=@ViewBag.BoardID">
     <thead>
         <tr>
-            @if (ViewBag.IsAdmin)
-            {
-                <th data-field="state" class="fit" data-checkbox="true"></th>
-                <th data-field="id" class="fit" data-visible="false">ID</th>
-                <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
-                <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
-                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-                <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
-                <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
-                <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
-                <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
-                <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
-                <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
-                <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
-                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
-                <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
-                <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
-                <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
-                <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
-            }
-            else
-            {
-                <th data-field="id" class="fit" data-visible="false">ID</th>
-                <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
-                <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
-                <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
-                <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
-                <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
-                <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
-                <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
-                <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
-                <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
-                <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
-                <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
-                <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
-                <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
-                <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
-            }
+            <th data-field="state" class="fit" data-checkbox="true"></th>
+            <th data-field="id" class="fit" data-visible="false">ID</th>
+            <th data-field="saftey" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Saftey</th>
+            <th data-field="name" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Name</th>
+            <th data-field="date" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date</th>
+            <th data-field="problem" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Problem</th>
+            <th data-field="eightWs" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">8 W's</th>
+            <th data-field="strategicGoals" class="fit" data-editable="true" data-editable-type="checklist" data-editable-source="[{value: 0, text: 'Patients'}, {value: 1, text: 'People'}, {value: 2, text: 'Sustainability'}, {value: 3, text: 'Research, Innovation & Learning'}]">HHS Strategic Goals</th>
+            <th data-field="isPtFamilyInvovlmentOpportunity" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'No'}, {value: 1, text: 'Yes'}]">Pt/Family Invovlment Opportunity?</th>
+            <th data-field="pickChart" class="fit" data-editable="true" data-editable-type="select" data-editable-source="[{value: 0, text: 'Implement'}, {value: 1, text: 'Challenge'}, {value: 2, text: 'Possible'}, {value: 3, text: 'Kibosh'}]">Pick Chart</th>
+            <th data-field="dateAssigned" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Date Assigned form Pick Chart</th>
+            <th data-field="staffWorkingOnOpportunity" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Staff working on opportunity</th>
+            <th data-field="why" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Why is this happening (the 5 Whys)?</th>
+            <th data-field="justDoIt" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Just Do It / PDSA / Work Waiting</th>
+            <th data-field="updates" class="fit" data-editable="true" data-editable-type="textarea" data-editable-escape="false" data-editable-onblur="ignore">Update</th>
+            <th data-field="dateModified" class="fit" data-editable="true" data-editable-type="combodate" data-editable-template="D MMM YYYY  HH:mm" data-editable-format="YYYY-MM-DD HH:mm" data-editable-viewformat="MMM D, YYYY, HH:mm">Last Updated</th>
+            <th data-field="operate" class="fit" data-formatter="operateFormatter" data-events="operateEvents"></th>
         </tr>
     </thead>
 </table>
@@ -346,23 +388,20 @@
     </div>
 </div>
 
-@if (ViewBag.IsAdmin)
-{
-    <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-        <a class="btn-floating btn-large red">
-            <i class="fa fa-pen"></i>
-        </a>
-        <ul>
-            <li>
-                <a id="selectionRemove" class="btn-floating bg-indigo">
-                    <i class="fa fa-trash"></i>
-                </a>
-            </li>
-            <li>
-                <a class="btn-floating bg-indigo" data-target="#newWIPModal" data-toggle="modal">
-                    <i class="fa fa-plus"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
-}
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red">
+        <i class="fa fa-pen"></i>
+    </a>
+    <ul>
+        <li>
+            <a id="selectionRemove" class="btn-floating bg-indigo">
+                <i class="fa fa-trash"></i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating bg-indigo" data-target="#newWIPModal" data-toggle="modal">
+                <i class="fa fa-plus"></i>
+            </a>
+        </li>
+    </ul>
+</div>

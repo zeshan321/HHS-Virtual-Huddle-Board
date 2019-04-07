@@ -208,12 +208,14 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddNewImpOp(CreateNewImpOp createNewImpOp)
         {
-            var board = _applicationDbContext.Boards.Where(b => b.ID == createNewImpOp.BoardID);
-            if (!board.Any())
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createNewImpOp.BoardID);
+            if (board == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json($"No board found.");
@@ -225,31 +227,62 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            _applicationDbContext.NewImpOps.Add(new NewImpOp
+            if (isAdmin)
             {
-                BoardID = createNewImpOp.BoardID,
-                Legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend),
-                PersonIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity),
-                DateIdentified = createNewImpOp.DateIdentified.Value,
-                Problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem),
-                StaffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity),
-                StrategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals),
-                IsPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity,
-                EightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs),
-                PickChart = createNewImpOp.PickChart,
-                JustDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt)
-            });
+                _applicationDbContext.NewImpOps.Add(new NewImpOp
+                {
+                    BoardID = createNewImpOp.BoardID,
+                    Legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend),
+                    PersonIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity),
+                    DateIdentified = createNewImpOp.DateIdentified.Value,
+                    Problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem),
+                    StaffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity),
+                    StrategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals),
+                    IsPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity,
+                    EightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs),
+                    PickChart = createNewImpOp.PickChart,
+                    JustDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt)
+                });
+            }
+            else
+            {
+                dynamic json = new JObject();
+                json.id = Guid.NewGuid().ToString();
+                json.legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend);
+                json.personIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity);
+                json.dateIdentified = createNewImpOp.DateIdentified.Value;
+                json.problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem);
+                json.staffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity);
+                json.strategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals);
+                json.isPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity;
+                json.eightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs);
+                json.pickChart = createNewImpOp.PickChart;
+                json.justDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt);
+
+                _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                {
+                    Username = user.UserName,
+                    ChangeRequestType = ChangeRequestType.CREATE,
+                    TableName = TableType.NEWIMPOP,
+                    AssociatedID = -1,
+                    AssociatedName = null,
+                    BoardID = board.ID,
+                    Values = json.ToString()
+                });
+            }
 
             await _applicationDbContext.SaveChangesAsync();
             return Json("Created");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddImprovement(CreateImpIdeasImplemented createImpIdeasImplemented)
         {
-            var board = _applicationDbContext.Boards.Where(b => b.ID == createImpIdeasImplemented.BoardID);
-            if (!board.Any())
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createImpIdeasImplemented.BoardID);
+            if (board == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json($"No board found.");
@@ -267,24 +300,57 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            _applicationDbContext.ImpIdeasImplemented.Add(new ImpIdeasImplemented
+            if (isAdmin)
             {
-                BoardID = createImpIdeasImplemented.BoardID,
-                Name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name),
-                Date = createImpIdeasImplemented.Date.Value,
-                Problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem),
-                Owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner),
-                Pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar),
-                IsPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity,
-                EightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs),
-                PickChart = createImpIdeasImplemented.PickChart,
-                JustDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt),
-                Solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution),
-                DateComplete = createImpIdeasImplemented.DateComplete.Value,
-                WorkCreated = createImpIdeasImplemented.WorkCreated,
-                ProcessObservationCreated = createImpIdeasImplemented.ProcessObservationCreated,
-                DateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase),
-            });
+                _applicationDbContext.ImpIdeasImplemented.Add(new ImpIdeasImplemented
+                {
+                    BoardID = createImpIdeasImplemented.BoardID,
+                    Name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name),
+                    Date = createImpIdeasImplemented.Date.Value,
+                    Problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem),
+                    Owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner),
+                    Pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar),
+                    IsPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity,
+                    EightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs),
+                    PickChart = createImpIdeasImplemented.PickChart,
+                    JustDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt),
+                    Solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution),
+                    DateComplete = createImpIdeasImplemented.DateComplete.Value,
+                    WorkCreated = createImpIdeasImplemented.WorkCreated,
+                    ProcessObservationCreated = createImpIdeasImplemented.ProcessObservationCreated,
+                    DateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase),
+                });
+            }
+            else
+            {
+                dynamic json = new JObject();
+                json.id = Guid.NewGuid().ToString();
+                json.name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name);
+                json.date = createImpIdeasImplemented.Date.Value;
+                json.problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem);
+                json.owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner);
+                json.pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar);
+                json.isPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity;
+                json.eightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs);
+                json.pickChart = createImpIdeasImplemented.PickChart;
+                json.justDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt);
+                json.solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution);
+                json.dateComplete = createImpIdeasImplemented.DateComplete.Value;
+                json.workCreated = createImpIdeasImplemented.WorkCreated;
+                json.processObservationCreated = createImpIdeasImplemented.ProcessObservationCreated;
+                json.dateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase);
+
+                _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                {
+                    Username = user.UserName,
+                    ChangeRequestType = ChangeRequestType.CREATE,
+                    TableName = TableType.IMPIDEAS,
+                    AssociatedID = -1,
+                    AssociatedName = null,
+                    BoardID = board.ID,
+                    Values = json.ToString()
+                });
+            }
 
             await _applicationDbContext.SaveChangesAsync();
             return Json("Created");
@@ -667,7 +733,9 @@ namespace HHSBoard.Controllers
         public async Task<IActionResult> GetChangeRequests(GetChangeRequestModel getChangeRequestModel)
         {
             var user = await _userManager.GetUserAsync(User);
-            var changeRequests = await _applicationDbContext.ChangeRequests.Where(c => c.Username.Equals(user.UserName) && c.BoardID.Equals(getChangeRequestModel.BoardID) && c.TableName.Equals(getChangeRequestModel.TableType)).ToListAsync();
+            var changeRequests = await _applicationDbContext.ChangeRequests.Where(c => c.Username.Equals(user.UserName) && c.BoardID.Equals(getChangeRequestModel.BoardID) && c.TableName.Equals(getChangeRequestModel.TableType))
+                .OrderBy(cr => cr.ID)
+                .ToListAsync();
 
             return Json(changeRequests);
         }

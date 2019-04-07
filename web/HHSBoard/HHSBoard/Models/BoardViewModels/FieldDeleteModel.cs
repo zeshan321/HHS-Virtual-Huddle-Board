@@ -8,5 +8,6 @@ namespace HHSBoard.Models.CelebrationViewModels
     {
         public List<string> Delete { get; set; }
         public TableType TableType { get; set; }
+        public int BoardID { get; set; }
     }
 }

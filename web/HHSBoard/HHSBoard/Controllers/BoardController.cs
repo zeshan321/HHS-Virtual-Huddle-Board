@@ -135,12 +135,14 @@ namespace HHSBoard.Controllers
             return Json("Created");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddWIP(CreateWipModel createWipModel)
         {
-            var board = _applicationDbContext.Boards.Where(b => b.ID == createWipModel.BoardID);
-            if (!board.Any())
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createWipModel.BoardID);
+            if (board == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json($"No board found.");
@@ -152,23 +154,55 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            _applicationDbContext.WIPs.Add(new WIP
+            if (isAdmin)
             {
-                BoardID = createWipModel.BoardID,
-                Saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey),
-                Name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name),
-                Date = createWipModel.Date.Value,
-                Problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem),
-                EightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs),
-                StrategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals),
-                IsPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity,
-                PickChart = createWipModel.PickChart,
-                DateAssigned = createWipModel.DateAssigned,
-                StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity),
-                Why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why),
-                JustDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt),
-                Updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates)
-            });
+                _applicationDbContext.WIPs.Add(new WIP
+                {
+                    BoardID = createWipModel.BoardID,
+                    Saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey),
+                    Name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name),
+                    Date = createWipModel.Date.Value,
+                    Problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem),
+                    EightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs),
+                    StrategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals),
+                    IsPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity,
+                    PickChart = createWipModel.PickChart,
+                    DateAssigned = createWipModel.DateAssigned,
+                    StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity),
+                    Why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why),
+                    JustDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt),
+                    Updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates)
+                });
+            }
+            else
+            {
+                dynamic json = new JObject();
+                json.id = Guid.NewGuid().ToString();
+                json.saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey);
+                json.name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name);
+                json.date = createWipModel.Date.Value;
+                json.problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem);
+                json.eightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs);
+                json.strategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals);
+                json.isPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity;
+                json.pickChart = createWipModel.PickChart;
+                json.dateAssigned = createWipModel.DateAssigned;
+                json.staffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity);
+                json.why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why);
+                json.justDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt);
+                json.updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates);
+
+                _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                {
+                    Username = user.UserName,
+                    ChangeRequestType = ChangeRequestType.CREATE,
+                    TableName = TableType.WIP,
+                    AssociatedID = -1,
+                    AssociatedName = null,
+                    BoardID = board.ID,
+                    Values = json.ToString()
+                });
+            }
 
             await _applicationDbContext.SaveChangesAsync();
             return Json("Created");
@@ -286,62 +320,62 @@ namespace HHSBoard.Controllers
                 fieldDeleteModel.Delete.Remove(remove);
             }
 
-            if (fieldDeleteModel.TableType == TableType.CELEBRATION)
+            if (isAdmin)
             {
-                if (isAdmin)
+                if (fieldDeleteModel.TableType == TableType.CELEBRATION)
                 {
                     var celebrations = _applicationDbContext.Celebrations.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
                     _applicationDbContext.Celebrations.RemoveRange(celebrations);
+
+                    await _applicationDbContext.SaveChangesAsync();
+                }
+                else if (fieldDeleteModel.TableType == TableType.WIP)
+                {
+                    var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
+                    _applicationDbContext.WIPs.RemoveRange(wip);
+
+                    await _applicationDbContext.SaveChangesAsync();
+                }
+                else if (fieldDeleteModel.TableType == TableType.NEWIMPOP)
+                {
+                    var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
+                    _applicationDbContext.NewImpOps.RemoveRange(newImpOp);
+
+                    await _applicationDbContext.SaveChangesAsync();
+                }
+                else if (fieldDeleteModel.TableType == TableType.IMPIDEAS)
+                {
+                    var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
+                    _applicationDbContext.ImpIdeasImplemented.RemoveRange(impIdeasImplemented);
+
+                    await _applicationDbContext.SaveChangesAsync();
                 }
                 else
                 {
-                    var previousChangeRequests = _applicationDbContext.ChangeRequests.Where(c => fieldDeleteModel.Delete.Contains(c.AssociatedID.ToString()));
-                    _applicationDbContext.ChangeRequests.RemoveRange(previousChangeRequests);
-
-                    foreach (var idToDelete in fieldDeleteModel.Delete)
-                    {
-                        var id = int.Parse(idToDelete);
-
-                        _applicationDbContext.ChangeRequests.Add(new ChangeRequest
-                        {
-                            Username = user.UserName,
-                            ChangeRequestType = ChangeRequestType.DELETE,
-                            TableName = TableType.CELEBRATION,
-                            AssociatedID = id,
-                            AssociatedName = null,
-                            BoardID = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID.Equals(id)).BoardID,
-                            Values = ""
-                        });
-                    }
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json("No table found.");
                 }
-
-                await _applicationDbContext.SaveChangesAsync();
-            }
-            else if (fieldDeleteModel.TableType == TableType.WIP)
-            {
-                var wip = _applicationDbContext.WIPs.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
-                _applicationDbContext.WIPs.RemoveRange(wip);
-
-                await _applicationDbContext.SaveChangesAsync();
-            }
-            else if (fieldDeleteModel.TableType == TableType.NEWIMPOP)
-            {
-                var newImpOp = _applicationDbContext.NewImpOps.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
-                _applicationDbContext.NewImpOps.RemoveRange(newImpOp);
-
-                await _applicationDbContext.SaveChangesAsync();
-            }
-            else if (fieldDeleteModel.TableType == TableType.IMPIDEAS)
-            {
-                var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.Where(c => fieldDeleteModel.Delete.Contains(c.ID.ToString()));
-                _applicationDbContext.ImpIdeasImplemented.RemoveRange(impIdeasImplemented);
-
-                await _applicationDbContext.SaveChangesAsync();
             }
             else
             {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json("No table found.");
+                var previousChangeRequests = _applicationDbContext.ChangeRequests.Where(c => fieldDeleteModel.Delete.Contains(c.AssociatedID.ToString()));
+                _applicationDbContext.ChangeRequests.RemoveRange(previousChangeRequests);
+
+                foreach (var idToDelete in fieldDeleteModel.Delete)
+                {
+                    var id = int.Parse(idToDelete);
+
+                    _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                    {
+                        Username = user.UserName,
+                        ChangeRequestType = ChangeRequestType.DELETE,
+                        TableName = fieldDeleteModel.TableType,
+                        AssociatedID = id,
+                        AssociatedName = null,
+                        BoardID =fieldDeleteModel.BoardID,
+                        Values = ""
+                    });
+                }
             }
 
             await _applicationDbContext.SaveChangesAsync();
@@ -355,9 +389,9 @@ namespace HHSBoard.Controllers
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
 
-            if (fieldUpdateModel.TableType == TableType.CELEBRATION)
+            if (isAdmin)
             {
-                if (isAdmin)
+                if (fieldUpdateModel.TableType == TableType.CELEBRATION)
                 {
                     var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
                     var proptery = celebration.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
@@ -377,100 +411,100 @@ namespace HHSBoard.Controllers
                         return Json($"Invalid value format for {TableType.CELEBRATION.ToString()}");
                     }
                 }
-                else
+                else if (fieldUpdateModel.TableType == TableType.WIP)
                 {
-                    dynamic jObject = new JObject();
-                    jObject.Name = fieldUpdateModel.Name;
-                    jObject.Value = fieldUpdateModel.Value ?? HttpUtility.HtmlEncode(fieldUpdateModel.Value);
+                    var wip = await _applicationDbContext.WIPs.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                    var proptery = wip.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var memberType = proptery.PropertyType;
+                    var nonNullType = Nullable.GetUnderlyingType(memberType);
+                    if (nonNullType != null)
+                        memberType = nonNullType;
+                    var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
 
-                    var changeRequestType = ChangeRequestType.UPDATE;
-                    var changeRequest = await _applicationDbContext.ChangeRequests.SingleOrDefaultAsync(c => c.AssociatedID.Equals(fieldUpdateModel.Pk) && c.AssociatedName.Equals(fieldUpdateModel.Name) && c.TableName.Equals(TableType.CELEBRATION));
-                    if (changeRequest != null)
+                    if (converted != null)
                     {
-                        changeRequest.Values = jObject.ToString();
+                        proptery.SetValue(wip, Convert.ChangeType(converted, memberType), null);
                     }
                     else
                     {
-                        _applicationDbContext.ChangeRequests.Add(new ChangeRequest
-                        {
-                            Username = user.UserName,
-                            ChangeRequestType = changeRequestType,
-                            TableName = TableType.CELEBRATION,
-                            AssociatedID = fieldUpdateModel.Pk,
-                            AssociatedName = fieldUpdateModel.Name,
-                            BoardID = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID.Equals(fieldUpdateModel.Pk)).BoardID,
-                            Values = jObject.ToString()
-                        });
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json($"Invalid value format for {TableType.WIP.ToString()}");
                     }
-
-                    await _applicationDbContext.SaveChangesAsync();
-                    return Json("Change requested.");
                 }
-            }
-            else if (fieldUpdateModel.TableType == TableType.WIP)
-            {
-                var wip = await _applicationDbContext.WIPs.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                var proptery = wip.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var memberType = proptery.PropertyType;
-                var nonNullType = Nullable.GetUnderlyingType(memberType);
-                if (nonNullType != null)
-                    memberType = nonNullType;
-                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
-
-                if (converted != null)
+                else if (fieldUpdateModel.TableType == TableType.NEWIMPOP)
                 {
-                    proptery.SetValue(wip, Convert.ChangeType(converted, memberType), null);
+                    var newImpOp = await _applicationDbContext.NewImpOps.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                    var proptery = newImpOp.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var memberType = proptery.PropertyType;
+                    var nonNullType = Nullable.GetUnderlyingType(memberType);
+                    if (nonNullType != null)
+                        memberType = nonNullType;
+                    var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
+
+                    if (converted != null)
+                    {
+                        proptery.SetValue(newImpOp, Convert.ChangeType(converted, memberType), null);
+                    }
+                    else
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json($"Invalid value format for {TableType.NEWIMPOP.ToString()}");
+                    }
+                }
+                else if (fieldUpdateModel.TableType == TableType.IMPIDEAS)
+                {
+                    var impIdeasImplemented = await _applicationDbContext.ImpIdeasImplemented.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
+                    var proptery = impIdeasImplemented.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var memberType = proptery.PropertyType;
+                    var nonNullType = Nullable.GetUnderlyingType(memberType);
+                    if (nonNullType != null)
+                        memberType = nonNullType;
+                    var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
+
+                    if (converted != null)
+                    {
+                        proptery.SetValue(impIdeasImplemented, Convert.ChangeType(converted, memberType), null);
+                    }
+                    else
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return Json($"Invalid value format for {TableType.IMPIDEAS.ToString()}");
+                    }
                 }
                 else
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json($"Invalid value format for {TableType.WIP.ToString()}");
-                }
-            }
-            else if (fieldUpdateModel.TableType == TableType.NEWIMPOP)
-            {
-                var newImpOp = await _applicationDbContext.NewImpOps.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                var proptery = newImpOp.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var memberType = proptery.PropertyType;
-                var nonNullType = Nullable.GetUnderlyingType(memberType);
-                if (nonNullType != null)
-                    memberType = nonNullType;
-                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
-
-                if (converted != null)
-                {
-                    proptery.SetValue(newImpOp, Convert.ChangeType(converted, memberType), null);
-                }
-                else
-                {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json($"Invalid value format for {TableType.NEWIMPOP.ToString()}");
-                }
-            }
-            else if (fieldUpdateModel.TableType == TableType.IMPIDEAS)
-            {
-                var impIdeasImplemented = await _applicationDbContext.ImpIdeasImplemented.Where(c => c.ID == fieldUpdateModel.Pk).FirstOrDefaultAsync();
-                var proptery = impIdeasImplemented.GetType().GetProperty(fieldUpdateModel.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                var memberType = proptery.PropertyType;
-                var nonNullType = Nullable.GetUnderlyingType(memberType);
-                if (nonNullType != null)
-                    memberType = nonNullType;
-                var converted = ConvertHelper.ConvertType(memberType, fieldUpdateModel.Value);
-
-                if (converted != null)
-                {
-                    proptery.SetValue(impIdeasImplemented, Convert.ChangeType(converted, memberType), null);
-                }
-                else
-                {
-                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    return Json($"Invalid value format for {TableType.IMPIDEAS.ToString()}");
+                    return Json("No table found.");
                 }
             }
             else
             {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json("No table found.");
+                dynamic jObject = new JObject();
+                jObject.Name = fieldUpdateModel.Name;
+                jObject.Value = fieldUpdateModel.Value ?? HttpUtility.HtmlEncode(fieldUpdateModel.Value);
+
+                var changeRequestType = ChangeRequestType.UPDATE;
+                var changeRequest = await _applicationDbContext.ChangeRequests.SingleOrDefaultAsync(c => c.AssociatedID.Equals(fieldUpdateModel.Pk) && c.AssociatedName.Equals(fieldUpdateModel.Name) && c.TableName.Equals(TableType.CELEBRATION));
+                if (changeRequest != null)
+                {
+                    changeRequest.Values = jObject.ToString();
+                }
+                else
+                {
+                    _applicationDbContext.ChangeRequests.Add(new ChangeRequest
+                    {
+                        Username = user.UserName,
+                        ChangeRequestType = changeRequestType,
+                        TableName = fieldUpdateModel.TableType,
+                        AssociatedID = fieldUpdateModel.Pk,
+                        AssociatedName = fieldUpdateModel.Name,
+                        BoardID = fieldUpdateModel.BoardID,
+                        Values = jObject.ToString()
+                    });
+                }
+
+                await _applicationDbContext.SaveChangesAsync();
+                return Json("Change requested.");
             }
 
             await _applicationDbContext.SaveChangesAsync();

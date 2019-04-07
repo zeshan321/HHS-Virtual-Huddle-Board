@@ -46,6 +46,11 @@ namespace HHSBoard.Controllers
                         var toRemove = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         _applicationDbContext.Celebrations.Remove(toRemove);
                     }
+                    if (changeRequest.TableName == TableType.WIP)
+                    {
+                        var toRemove = _applicationDbContext.WIPs.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
+                        _applicationDbContext.WIPs.Remove(toRemove);
+                    }
                     break;
 
                 case ChangeRequestType.UPDATE:
@@ -63,6 +68,63 @@ namespace HHSBoard.Controllers
                         {
                             proptery.SetValue(celebration, Convert.ChangeType(converted, memberType), null);
                         }
+                    }
+                    if (changeRequest.TableName == TableType.WIP)
+                    {
+                        var wip = await _applicationDbContext.WIPs.Where(c => c.ID == changeRequest.AssociatedID).FirstOrDefaultAsync();
+                        var proptery = wip.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                        var memberType = proptery.PropertyType;
+                        var nonNullType = Nullable.GetUnderlyingType(memberType);
+                        if (nonNullType != null)
+                            memberType = nonNullType;
+                        var converted = ConvertHelper.ConvertType(memberType, JObject.Parse(changeRequest.Values).GetValue("Value").ToString());
+
+                        if (converted != null)
+                        {
+                            proptery.SetValue(wip, Convert.ChangeType(converted, memberType), null);
+                        }
+                    }
+                    break;
+
+                case ChangeRequestType.CREATE:
+                    var json = JObject.Parse(changeRequest.Values);
+
+                    if (changeRequest.TableName == TableType.CELEBRATION)
+                    {
+                        _applicationDbContext.Celebrations.Add(new Celebration
+                        {
+                            Who = json.GetValue("who").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("who").ToString()),
+                            What = json.GetValue("what").ToString() ??  HttpUtility.HtmlEncode(json.GetValue("what").ToString()),
+                            Why = json.GetValue("why").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("why").ToString()),
+                            Date = DateTime.Parse(json.GetValue("date").ToString()),
+                            BoardID = changeRequest.BoardID
+                        });
+                    }
+                    if (changeRequest.TableName == TableType.WIP)
+                    {
+                        var wip = new WIP
+                        {
+                            BoardID = changeRequest.BoardID,
+                            Saftey = json.GetValue("saftey").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("saftey").ToString()),
+                            Name = json.GetValue("name").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("name").ToString()),
+                            Date = DateTime.Parse(json.GetValue("date").ToString()),
+                            Problem = json.GetValue("problem").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("problem").ToString()),
+                            EightWs = json.GetValue("eightWs").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("eightWs").ToString()),
+                            StrategicGoals = json.GetValue("strategicGoals").ToString(),
+                            StaffWorkingOnOpportunity = json.GetValue("staffWorkingOnOpportunity").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("staffWorkingOnOpportunity").ToString()),
+                            Why = json.GetValue("why").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("why").ToString()),
+                            JustDoIt = json.GetValue("justDoIt").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("justDoIt").ToString()),
+                            Updates = json.GetValue("updates").ToString() ?? HttpUtility.HtmlEncode(json.GetValue("updates").ToString())
+                        };
+
+                        if (json.GetValue("isPtFamilyInvovlmentOpportunity").HasValues)
+                            wip.IsPtFamilyInvovlmentOpportunity = bool.Parse(json.GetValue("isPtFamilyInvovlmentOpportunity").ToString());
+                        if (json.GetValue("pickChart").HasValues)
+                            wip.PickChart = (PickChart)int.Parse(json.GetValue("pickChart").ToString());
+                        if (json.GetValue("dateAssigned").HasValues)
+                            wip.DateAssigned = DateTime.Parse(json.GetValue("dateAssigned").ToString());
+
+                        _applicationDbContext.WIPs.Add(wip);
                     }
                     break;
             }
@@ -102,6 +164,14 @@ namespace HHSBoard.Controllers
                         var celebration = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         var property = celebration.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                         
+                        json.Value = property.GetValue(celebration, null) ?? "";
+                    }
+
+                    if (changeRequest.TableName == TableType.WIP)
+                    {
+                        var celebration = _applicationDbContext.WIPs.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
+                        var property = celebration.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
                         json.Value = property.GetValue(celebration, null) ?? "";
                     }
 

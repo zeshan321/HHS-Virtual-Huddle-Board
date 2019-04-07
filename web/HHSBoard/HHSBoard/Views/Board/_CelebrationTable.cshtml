@@ -98,6 +98,8 @@
                             field: 'id',
                             values: globalDeleteList
                         });
+                    } else {
+                        GetChangeRequests();
                     }
 
                     $("#deleteModal").modal("hide");
@@ -223,7 +225,7 @@
        data-check-on-init="true"
        data-unique-id="id"
        data-id-field="id"
-       data-editable-url="/Board/UpdateField?TableType=1"
+       data-editable-url="/Board/UpdateField?TableType=1&BoardID=@ViewBag.BoardID"
        data-show-toggle="true"
        data-show-refresh="true"
        data-auto-refresh="true"

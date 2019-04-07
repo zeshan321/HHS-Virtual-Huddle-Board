@@ -47,11 +47,19 @@
                 data: { BoardID: @ViewBag.BoardID, Date: createDate, Who: createWho, Why: createWhy, What: createWhat },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully created celebration.'
-                    }, {
-                            type: 'success'
-                    });
+                    if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully created celebration.'
+                        }, {
+                                type: 'success'
+                            });
+                    } else {
+                        $.notify({
+                            message: 'Successfully requested to create new celebration.'
+                        }, {
+                                type: 'success'
+                            });
+                    }
 
                     location.reload();
                 },
@@ -87,18 +95,24 @@
                 BoardID: @ViewBag.BoardID, TableType: 1, Delete: globalDeleteList },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully deleted.'
-                    }, {
-                            type: 'success'
-                    });
-
                     if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully deleted.'
+                        }, {
+                                type: 'success'
+                        });
+
                         $table.bootstrapTable('remove', {
                             field: 'id',
                             values: globalDeleteList
                         });
                     } else {
+                        $.notify({
+                            message: 'Successfully requested to delete record.'
+                        }, {
+                                type: 'success'
+                            });
+
                         GetChangeRequests();
                     }
 

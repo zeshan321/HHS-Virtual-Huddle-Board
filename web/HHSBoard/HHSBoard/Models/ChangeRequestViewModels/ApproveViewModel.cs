@@ -23,7 +23,8 @@ namespace HHSBoard.Models.ChangeRequestViewModels
 
         public string Values { get; set; }
 
-        public Board Board { get; set; }
+        public string BoardName { get; set; }
+        public string UnitName { get; set; }
 
         public string PreviousValues { get; set; }
     }

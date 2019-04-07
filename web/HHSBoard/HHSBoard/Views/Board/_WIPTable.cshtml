@@ -29,18 +29,24 @@
                 BoardID: @ViewBag.BoardID, TableType: 2, Delete: globalDeleteList },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully deleted.'
-                    }, {
-                            type: 'success'
-                    });
-
                     if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully deleted.'
+                        }, {
+                                type: 'success'
+                        });
+
                         $table.bootstrapTable('remove', {
                             field: 'id',
                             values: globalDeleteList
                         });
                     } else {
+                        $.notify({
+                            message: 'Successfully requested to delete record.'
+                        }, {
+                                type: 'success'
+                            });
+
                         GetChangeRequests();
                     }
 
@@ -118,11 +124,19 @@
                 },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully created WIP.'
-                    }, {
-                            type: 'success'
-                    });
+                    if (@ViewBag.IsAdmin.ToString().ToLower()) {
+                        $.notify({
+                            message: 'Successfully created WIP.'
+                        }, {
+                                type: 'success'
+                            });
+                    } else {
+                        $.notify({
+                            message: 'Successfully requested to create new WIP.'
+                        }, {
+                                type: 'success'
+                            });
+                    }
 
                     location.reload();
                 },

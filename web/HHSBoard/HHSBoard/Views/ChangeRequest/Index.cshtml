@@ -161,11 +161,14 @@
        data-auto-refresh="true"
        data-show-fullscreen="true"
        data-side-pagination="server"
+       data-sort-id="asc"
        data-url="/ChangeRequest/GetChangeRequestData">
     <thead>
         <tr>
-            <th data-field="id" data-visible="false" class="fit">ID</th>
+            <th data-field="id" data-visible="false" class="fit" data-sotrable="true">ID</th>
             <th data-field="changeRequestType" data-formatter="statusFormatter" class="fit">Change Type</th>
+            <th data-field="unitName" class="fit">Unit Name</th>
+            <th data-field="boardName" class="fit">Board Name</th>
             <th data-field="tableName" class="fit">Table Name</th>
             <th data-field="username" class="fit">Username</th>
             <th data-field="previousValues" data-formatter="jsonFormatter" class="fit">Current</th>

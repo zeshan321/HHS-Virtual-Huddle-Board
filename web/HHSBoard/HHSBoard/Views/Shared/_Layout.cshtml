@@ -33,6 +33,7 @@
     <script src="~/lib/summernote/summernote.min.js"></script>
     <script src="~/lib/jQuery.initialize/jquery.initialize.min.js.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script src="~/lib/htmldiff/htmldiff.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -49,20 +50,35 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li>
-                        @if (User.Identity.IsAuthenticated)
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        if (User.IsInRole("Admin"))
                         {
-                            if (User.IsInRole("Admin"))
-                            {
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a asp-controller="Admin" asp-action="Index" class="skel-layers-ignoreHref">Users</a></li>
-                                    <li><a asp-controller="Audit" asp-action="Index" class="skel-layers-ignoreHref">Audit</a></li>
-                                    <li><a asp-controller="Units" asp-action="Index" class="skel-layers-ignoreHref">Unit</a></li>
-                                </ul>
-                            }
+                                <li>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a asp-controller="ChangeRequest" asp-action="Index" class="skel-layers-ignoreHref">Change Requests</a></li>
+                                        <li><a asp-controller="Admin" asp-action="Index" class="skel-layers-ignoreHref">Users</a></li>
+                                        <li><a asp-controller="Audit" asp-action="Index" class="skel-layers-ignoreHref">Audit</a></li>
+                                        <li><a asp-controller="Units" asp-action="Index" class="skel-layers-ignoreHref">Unit</a></li>
+                                    </ul>
+                                </li>
                         }
-                    </li>
+                    }
+
+                    @if (ViewBag.BoardID != null)
+                    {
+                                <li>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Quick switch <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="/Board?BoardID=@ViewBag.BoardID" class="skel-layers-ignoreHref">Purpose</a></li>
+                                        <li><a href="/Board?BoardID=@ViewBag.BoardID&TableType=1" class="skel-layers-ignoreHref">Celebrations</a></li>
+                                        <li><a href="/Board?BoardID=@ViewBag.BoardID&TableType=2" class="skel-layers-ignoreHref">Work In Progress</a></li>
+                                        <li><a href="/Board?BoardID=@ViewBag.BoardID&TableType=3" class="skel-layers-ignoreHref">New Improvement Opportunities</a></li>
+                                        <li><a href="/Board?BoardID=@ViewBag.BoardID&TableType=4" class="skel-layers-ignoreHref">Improvement Ideas Implemented</a></li>
+                                    </ul>
+                                </li>
+                    }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>

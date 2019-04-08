@@ -4,6 +4,7 @@ Virtual Huddle Board for Hamilton Health Sciences
 Live demo: Coming soon
 
 # Development Tools
+- C# 7.1
 - .NET CORE 2.0 ASP.NET MVC
 - Server dependencies:
   - Include="Microsoft.AspNetCore.All" Version="2.0.9"

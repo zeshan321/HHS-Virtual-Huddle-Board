@@ -27,7 +27,7 @@ On first time setup do the following:
 - Once complete un-comment methods previously commented out and run.
 - Done!
 
-### Outstanding Issues
+## Outstanding Issues
 - Unable to edit create request for new record. User has to delete and make again. Perfectly works for Admins.
 - HHS strategic goals only allows one option.
 - No other known bugs.

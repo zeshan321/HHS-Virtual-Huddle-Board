@@ -63,7 +63,7 @@ namespace HHSBoard.Controllers
                     }
                     break;
 
-                case ChangeRequestType.UPDATE:
+                case ChangeRequestType.MODIFY:
                     if (changeRequest.TableName == TableType.CELEBRATION)
                     {
                         var celebration = await _applicationDbContext.Celebrations.Where(c => c.ID == changeRequest.AssociatedID).FirstOrDefaultAsync();
@@ -126,7 +126,7 @@ namespace HHSBoard.Controllers
                     }
                     break;
 
-                case ChangeRequestType.CREATE:
+                case ChangeRequestType.ADD:
                     var json = JObject.Parse(changeRequest.Values);
 
                     if (changeRequest.TableName == TableType.CELEBRATION)
@@ -240,13 +240,26 @@ namespace HHSBoard.Controllers
             var search = boardTableViewModel.Search?.ToUpper().Trim();
             var table = _applicationDbContext.ChangeRequests;
             var total = await table.CountAsync();
-            var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit).Include(d => d.Board).Include(d => d.Board.Unit);
+            var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+            if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
+            {
+                data = data.Where(d => d.TableName.ToString().ToUpper().Contains(search)
+                || d.Username.ToUpper().Contains(search)
+                || d.Values.ToUpper().Contains(search)
+                || d.ChangeRequestType.ToString().ToUpper().Contains(search)
+                || d.AssociatedName.ToUpper().Contains(search)
+                || d.Board.Name.ToUpper().Contains(search)
+                || d.Board.Unit.Name.ToUpper().Contains(search));
+            }
+
+            data = data.Include(d => d.Board).Include(d => d.Board.Unit);
 
             List<ApproveViewModel> approveViewModels = new List<ApproveViewModel>();
             foreach (var changeRequest in data)
             {
                 var previousValues = "";
-                if (changeRequest.ChangeRequestType == ChangeRequestType.UPDATE)
+                if (changeRequest.ChangeRequestType == ChangeRequestType.MODIFY)
                 {
                     dynamic json = new JObject();
                     json.Name = changeRequest.AssociatedName;

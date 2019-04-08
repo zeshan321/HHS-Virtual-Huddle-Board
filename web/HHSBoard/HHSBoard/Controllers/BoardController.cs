@@ -122,7 +122,7 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
                     Username = user.UserName,
-                    ChangeRequestType = ChangeRequestType.CREATE,
+                    ChangeRequestType = ChangeRequestType.ADD,
                     TableName = TableType.CELEBRATION,
                     AssociatedID = -1,
                     AssociatedName = null,
@@ -195,7 +195,7 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
                     Username = user.UserName,
-                    ChangeRequestType = ChangeRequestType.CREATE,
+                    ChangeRequestType = ChangeRequestType.ADD,
                     TableName = TableType.WIP,
                     AssociatedID = -1,
                     AssociatedName = null,
@@ -262,7 +262,7 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
                     Username = user.UserName,
-                    ChangeRequestType = ChangeRequestType.CREATE,
+                    ChangeRequestType = ChangeRequestType.ADD,
                     TableName = TableType.NEWIMPOP,
                     AssociatedID = -1,
                     AssociatedName = null,
@@ -343,7 +343,7 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
                     Username = user.UserName,
-                    ChangeRequestType = ChangeRequestType.CREATE,
+                    ChangeRequestType = ChangeRequestType.ADD,
                     TableName = TableType.IMPIDEAS,
                     AssociatedID = -1,
                     AssociatedName = null,
@@ -549,7 +549,7 @@ namespace HHSBoard.Controllers
                 jObject.Name = fieldUpdateModel.Name;
                 jObject.Value = fieldUpdateModel.Value ?? HttpUtility.HtmlEncode(fieldUpdateModel.Value);
 
-                var changeRequestType = ChangeRequestType.UPDATE;
+                var changeRequestType = ChangeRequestType.MODIFY;
                 var changeRequest = await _applicationDbContext.ChangeRequests.SingleOrDefaultAsync(c => c.AssociatedID.Equals(fieldUpdateModel.Pk) && c.AssociatedName.Equals(fieldUpdateModel.Name) && c.TableName.Equals(TableType.CELEBRATION));
                 if (changeRequest != null)
                 {

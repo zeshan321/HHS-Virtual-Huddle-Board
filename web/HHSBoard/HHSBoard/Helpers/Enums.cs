@@ -19,8 +19,8 @@
 
     public enum ChangeRequestType
     {
-        UPDATE = 0,
-        CREATE = 1,
+        MODIFY = 0,
+        ADD = 1,
         DELETE = 2
     }
 }

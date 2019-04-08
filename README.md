@@ -6,7 +6,7 @@ Live demo: Coming soon
 # Development Tools
 - C# 7.1
 - .NET CORE 2.0 ASP.NET MVC
-- Server dependencies:
+- Server dependencies (Included but may need setup depending on computer):
   - Include="Microsoft.AspNetCore.All" Version="2.0.9"
   - Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.3"
   - Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4"

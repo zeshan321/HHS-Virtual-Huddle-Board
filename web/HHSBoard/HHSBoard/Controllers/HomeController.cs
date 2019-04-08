@@ -36,6 +36,8 @@ namespace HHSBoard.Controllers
 
             if (isAdmin)
             {
+                ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
+
                 return View(new HomeIndexViewModel
                 {
                     Units = await _applicationDbContext.Units.ToListAsync(),

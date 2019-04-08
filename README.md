@@ -9,7 +9,7 @@ Live demo: Coming soon
   - Include="Microsoft.AspNetCore.All" Version="2.0.9"
   - Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.3"
   - Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4"
-  - Include="Newtonsoft.Json
+  - Include="Newtonsoft.Json" Version="12.0.1"
   - Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3"
 - Web dependencies:
   - Already included and setup in project www root. No setup required.

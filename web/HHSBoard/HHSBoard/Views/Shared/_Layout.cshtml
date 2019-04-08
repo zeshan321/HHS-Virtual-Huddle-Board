@@ -57,7 +57,15 @@
                                 <li>
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a asp-controller="ChangeRequest" asp-action="Index" class="skel-layers-ignoreHref">Change Requests</a></li>
+                                        <li>
+                                            <a asp-controller="ChangeRequest" asp-action="Index" class="skel-layers-ignoreHref">
+                                                Change Requests
+                                                @if (ViewBag.ChangeRequestAmount != null)
+                                                {
+                                                    <span class="badge">@ViewBag.ChangeRequestAmount</span>
+                                                }
+                                            </a>
+                                        </li>
                                         <li><a asp-controller="Admin" asp-action="Index" class="skel-layers-ignoreHref">Users</a></li>
                                         <li><a asp-controller="Audit" asp-action="Index" class="skel-layers-ignoreHref">Audit</a></li>
                                         <li><a asp-controller="Units" asp-action="Index" class="skel-layers-ignoreHref">Unit</a></li>

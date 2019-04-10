@@ -306,9 +306,9 @@ namespace HHSBoard.Controllers
                     {
                         var celebration = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         json.id = celebration.ID;
-                        json.who = celebration.Who ?? HttpUtility.HtmlEncode(celebration.Who);
-                        json.what = celebration.What ?? HttpUtility.HtmlEncode(celebration.What);
-                        json.why = celebration.Why ?? HttpUtility.HtmlEncode(celebration.Why);
+                        json.who = celebration.Who;
+                        json.what = celebration.What;
+                        json.why = celebration.Why;
                         json.date = celebration.Date;
                         json.BoardID = celebration.BoardID;
                     }
@@ -317,19 +317,19 @@ namespace HHSBoard.Controllers
                     {
                         var wip = _applicationDbContext.WIPs.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         json.id = wip.ID;
-                        json.saftey = wip.Saftey ?? HttpUtility.HtmlEncode(wip.Saftey);
-                        json.name = wip.Name ?? HttpUtility.HtmlEncode(wip.Name);
+                        json.saftey = wip.Saftey;
+                        json.name = wip.Name;
                         json.date = wip.Date;
-                        json.problem = wip.Problem ?? HttpUtility.HtmlEncode(wip.Problem);
-                        json.eightWs = wip.EightWs ?? HttpUtility.HtmlEncode(wip.EightWs);
-                        json.strategicGoals = wip.StrategicGoals ?? HttpUtility.HtmlEncode(wip.StrategicGoals);
+                        json.problem = wip.Problem;
+                        json.eightWs = wip.EightWs;
+                        json.strategicGoals = wip.StrategicGoals;
                         json.isPtFamilyInvovlmentOpportunity = wip.IsPtFamilyInvovlmentOpportunity;
                         json.pickChart = wip.PickChart;
                         json.dateAssigned = wip.DateAssigned;
-                        json.staffWorkingOnOpportunity = wip.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(wip.StaffWorkingOnOpportunity);
-                        json.why = wip.Why ?? HttpUtility.HtmlEncode(wip.Why);
-                        json.justDoIt = wip.JustDoIt ?? HttpUtility.HtmlEncode(wip.JustDoIt);
-                        json.updates = wip.Updates ?? HttpUtility.HtmlEncode(wip.Updates);
+                        json.staffWorkingOnOpportunity = wip.StaffWorkingOnOpportunity;
+                        json.why = wip.Why;
+                        json.justDoIt = wip.JustDoIt;
+                        json.updates = wip.Updates;
                         json.BoardID = wip.BoardID;
                     }
 
@@ -337,16 +337,16 @@ namespace HHSBoard.Controllers
                     {
                         var newImpOp = _applicationDbContext.NewImpOps.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         json.id = newImpOp.ID;
-                        json.legend = newImpOp.Legend ?? HttpUtility.HtmlEncode(newImpOp.Legend);
-                        json.personIdentifyingOpportunity = newImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(newImpOp.PersonIdentifyingOpportunity);
+                        json.legend = newImpOp.Legend;
+                        json.personIdentifyingOpportunity = newImpOp.PersonIdentifyingOpportunity;
                         json.dateIdentified = newImpOp.DateIdentified;
-                        json.problem = newImpOp.Problem ?? HttpUtility.HtmlEncode(newImpOp.Problem);
-                        json.staffWorkingOnOpportunity = newImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(newImpOp.StaffWorkingOnOpportunity);
-                        json.strategicGoals = newImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(newImpOp.StrategicGoals);
+                        json.problem = newImpOp.Problem;
+                        json.staffWorkingOnOpportunity = newImpOp.StaffWorkingOnOpportunity;
+                        json.strategicGoals = newImpOp.StrategicGoals;
                         json.isPtFamilyInvovlmentOpportunity = newImpOp.IsPtFamilyInvovlmentOpportunity;
-                        json.eightWs = newImpOp.EightWs ?? HttpUtility.HtmlEncode(newImpOp.EightWs);
+                        json.eightWs = newImpOp.EightWs;
                         json.pickChart = newImpOp.PickChart;
-                        json.justDoIt = newImpOp.JustDoIt ?? HttpUtility.HtmlEncode(newImpOp.JustDoIt);
+                        json.justDoIt = newImpOp.JustDoIt;
                         json.BoardID = newImpOp.BoardID;
                     }
 
@@ -354,24 +354,24 @@ namespace HHSBoard.Controllers
                     {
                         var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         json.id = impIdeasImplemented.ID;
-                        json.name = impIdeasImplemented.Name ?? HttpUtility.HtmlEncode(impIdeasImplemented.Name);
+                        json.name = impIdeasImplemented.Name;
                         json.date = impIdeasImplemented.Date;
-                        json.problem = impIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(impIdeasImplemented.Problem);
-                        json.owner = impIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(impIdeasImplemented.Owner);
-                        json.pillar = impIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(impIdeasImplemented.Pillar);
+                        json.problem = impIdeasImplemented.Problem;
+                        json.owner = impIdeasImplemented.Owner;
+                        json.pillar = impIdeasImplemented.Pillar;
                         json.isPtFamilyInvovlmentOpportunity = impIdeasImplemented.IsPtFamilyInvovlmentOpportunity;
-                        json.eightWs = impIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(impIdeasImplemented.EightWs);
+                        json.eightWs = impIdeasImplemented.EightWs;
                         json.pickChart = impIdeasImplemented.PickChart;
-                        json.justDoIt = impIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(impIdeasImplemented.JustDoIt);
-                        json.solution = impIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(impIdeasImplemented.Solution);
+                        json.justDoIt = impIdeasImplemented.JustDoIt;
+                        json.solution = impIdeasImplemented.Solution;
                         json.dateComplete = impIdeasImplemented.DateComplete;
                         json.workCreated = impIdeasImplemented.WorkCreated;
                         json.processObservationCreated = impIdeasImplemented.ProcessObservationCreated;
-                        json.dateEnterIntoDatabase = impIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(impIdeasImplemented.DateEnterIntoDatabase);
+                        json.dateEnterIntoDatabase = impIdeasImplemented.DateEnterIntoDatabase;
                         json.BoardID = impIdeasImplemented.BoardID;
                     }
 
-                    previousValues = json.ToString();
+                    previousValues = HttpUtility.HtmlEncode(json.ToString());
                 }
 
                 approveViewModels.Add(new ApproveViewModel
@@ -382,10 +382,10 @@ namespace HHSBoard.Controllers
                     TableName = changeRequest.TableName.ToString(),
                     AssociatedID = changeRequest.AssociatedID,
                     AssociatedName = changeRequest.AssociatedName,
-                    Values = HttpUtility.HtmlDecode(changeRequest.Values),
+                    Values = changeRequest.Values,
                     BoardName = changeRequest.Board.Name,
                     UnitName = changeRequest.Board.Unit.Name,
-                    PreviousValues = HttpUtility.HtmlDecode(previousValues)
+                    PreviousValues = previousValues
                 });
             }
 

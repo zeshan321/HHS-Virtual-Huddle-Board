@@ -115,6 +115,8 @@
 
         var element = "<dl>";
 
+        value = decodeHtml(value);
+
         $.each(JSON.parse(value), function (key, value) {
             element = element + "<dt>" + key + "</dt>"
 

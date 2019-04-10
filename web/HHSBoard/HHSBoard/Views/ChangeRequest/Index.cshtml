@@ -113,12 +113,12 @@
             return value;
         }
 
-        console.log(value);
         var element = "<dl>";
 
         $.each(JSON.parse(value), function (key, value) {
             element = element + "<dt>" + key + "</dt>"
 
+            value = decodeHtml(value);
             if (value != "") {
                 element = element + "<dd>" + value + "</dd>";
             } else {
@@ -127,6 +127,12 @@
         });
 
         return element + "</dl>";
+    }
+
+    function decodeHtml(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
     }
 
     function diffFormatter(value, row, index) {
@@ -156,7 +162,7 @@
        data-search="true"
        data-mobile-responsive="true"
        data-check-on-init="true"
-       data-id-field="id" ,
+       data-id-field="id"
        data-show-toggle="true"
        data-show-refresh="true"
        data-auto-refresh="true"

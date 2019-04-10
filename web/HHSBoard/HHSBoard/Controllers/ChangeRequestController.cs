@@ -269,7 +269,7 @@ namespace HHSBoard.Controllers
                         var celebration = _applicationDbContext.Celebrations.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         var property = celebration.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                         
-                        json.Value = property.GetValue(celebration, null) ?? "";
+                        json.Value = HttpUtility.HtmlEncode(property.GetValue(celebration, null)) ?? "";
                     }
 
                     if (changeRequest.TableName == TableType.WIP)
@@ -277,7 +277,7 @@ namespace HHSBoard.Controllers
                         var wip = _applicationDbContext.WIPs.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         var property = wip.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-                        json.Value = property.GetValue(wip, null) ?? "";
+                        json.Value = HttpUtility.HtmlEncode(property.GetValue(wip, null)) ?? "";
                     }
 
                     if (changeRequest.TableName == TableType.NEWIMPOP)
@@ -285,7 +285,7 @@ namespace HHSBoard.Controllers
                         var newImpOp = _applicationDbContext.NewImpOps.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         var property = newImpOp.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-                        json.Value = property.GetValue(newImpOp, null) ?? "";
+                        json.Value = HttpUtility.HtmlEncode(property.GetValue(newImpOp, null)) ?? "";
                     }
 
                     if (changeRequest.TableName == TableType.IMPIDEAS)
@@ -293,7 +293,7 @@ namespace HHSBoard.Controllers
                         var impIdeasImplemented = _applicationDbContext.ImpIdeasImplemented.SingleOrDefault(c => c.ID == changeRequest.AssociatedID);
                         var property = impIdeasImplemented.GetType().GetProperty(changeRequest.AssociatedName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
-                        json.Value = property.GetValue(impIdeasImplemented, null) ?? "";
+                        json.Value = HttpUtility.HtmlEncode(property.GetValue(impIdeasImplemented, null)) ?? "";
                     }
 
                     previousValues = json.ToString();
@@ -308,7 +308,7 @@ namespace HHSBoard.Controllers
                         json.id = celebration.ID;
                         json.who = celebration.Who ?? HttpUtility.HtmlEncode(celebration.Who);
                         json.what = celebration.What ?? HttpUtility.HtmlEncode(celebration.What);
-                        json.why = celebration.What ?? HttpUtility.HtmlEncode(celebration.What);
+                        json.why = celebration.Why ?? HttpUtility.HtmlEncode(celebration.Why);
                         json.date = celebration.Date;
                         json.BoardID = celebration.BoardID;
                     }

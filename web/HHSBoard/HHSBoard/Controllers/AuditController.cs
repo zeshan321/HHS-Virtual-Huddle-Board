@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using HHSBoard.Data;
 using HHSBoard.Models;
 using HHSBoard.Models.AuditViewModels;
@@ -48,10 +49,18 @@ namespace HHSBoard.Controllers
                 || a.DateTime.ToString().ToUpper().Contains(search));
             }
 
+            var list = await data.ToListAsync();
+
+            foreach (var audit in list)
+            {
+                audit.OldValues = HttpUtility.HtmlEncode(audit.OldValues);
+                audit.NewValues = HttpUtility.HtmlEncode(audit.NewValues);
+            }
+
             return Json(new AuditViewModel
             {
                 Total = total,
-                Audits = await data.ToListAsync()
+                Audits = list
             });
         }
     }

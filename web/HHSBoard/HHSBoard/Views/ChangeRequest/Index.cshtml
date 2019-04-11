@@ -109,7 +109,7 @@
     }
 
     function jsonFormat(value) {
-        if (value == "") {
+        if (value == "" || value == null) {
             return value;
         }
 
@@ -138,7 +138,17 @@
     }
 
     function diffFormatter(value, row, index) {
-        return htmldiff(jsonFormat(row.previousValues), jsonFormat(row.values));
+        var old = row.previousValues;
+        if (row.previousValues == "" || row.previousValues == null) {
+            old = "";
+        }
+
+        var newValue = row.values;
+        if (row.values == "" || row.values == null) {
+            newValue = "";
+        }
+
+        return htmldiff(jsonFormat(old), jsonFormat(newValue));
     }
 
     function operateFormatter(value, row, index) {

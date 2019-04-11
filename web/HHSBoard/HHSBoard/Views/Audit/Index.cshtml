@@ -3,6 +3,19 @@
     ViewData["Title"] = "Audit";
 }
 
+<style>
+    ins {
+        text-decoration: none;
+        background-color: #d4fcbc;
+    }
+
+    del {
+        text-decoration: line-through;
+        background-color: #fbb6c2;
+        color: #555;
+    }
+</style>
+
 <script>
     var $table;
 
@@ -28,15 +41,48 @@
             return '<span class="label label-default">' + value + '</span>';
         }
     }
-    function jsonFormatter(value, row, index) {
+
+    function jsonFormat(value) {
+        if (value == "" || value == null) {
+            return value;
+        }
+
         var element = "<dl>";
 
+        value = decodeHtml(value);
         $.each(JSON.parse(value), function (key, value) {
             element = element + "<dt>" + key + "</dt>"
-            element = element + "<dd>" + value + "</dd>"
+
+            value = decodeHtml(value);
+            if (value != "") {
+                element = element + "<dd>" + value + "</dd>";
+            } else {
+                element = element + "";
+            }
         });
 
         return element + "</dl>";
+    }
+
+
+    function decodeHtml(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
+
+    function diffFormatter(value, row, index) {
+        var old = row.oldValues;
+        if (row.oldValues == "" || row.oldValues == null) {
+            old = "";
+        }
+
+        var newValue = row.newValues;
+        if (row.newValues == "" || row.newValues == null) {
+            newValue = "";
+        }
+
+        return htmldiff(jsonFormat(old), jsonFormat(newValue));
     }
 </script>
 
@@ -64,9 +110,10 @@
             <th data-field="state" data-formatter="statusFormatter" class="fit">State</th>
             <th data-field="tableName" class="fit">Table Name</th>
             <th data-field="username" class="fit">Username</th>
-            <th data-field="keyValues" data-formatter="jsonFormatter" class="fit">Key Values</th>
-            <th data-field="oldValues" data-formatter="jsonFormatter" class="fit">Old Values</th>
-            <th data-field="newValues" data-formatter="jsonFormatter" class="fit">New Values</th>
+            <th data-field="keyValues" data-formatter="jsonFormat" class="fit">Key Values</th>
+            <th data-field="oldValues" data-formatter="jsonFormat" class="fit">Old Values</th>
+            <th data-field="newValues" data-formatter="jsonFormat" class="fit">New Values</th>
+            <th data-formatter="diffFormatter" class="fit">Difference</th>
         </tr>
     </thead>
 </table>

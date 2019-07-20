@@ -2,6 +2,7 @@
 Virtual Huddle Board for Hamilton Health Sciences
 
 Live demo: Coming soon
+Video demo: https://zeshanaslam.com/hhsdemo
 
 ## Operating Instructions/Build Instructions
 ### Development Tools

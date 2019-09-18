@@ -1,7 +1,7 @@
 # HHS-Virtual-Huddle-Board
 Virtual Huddle Board for Hamilton Health Sciences
 
-Live demo: Coming soon
+Live demo: http://vhb.zeshanaslam.com
 
 Video demo: https://zeshanaslam.com/hhsdemo
 

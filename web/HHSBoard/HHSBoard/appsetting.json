@@ -1,0 +1,11 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=138.197.150.131;Database=VHBDB;User ID=SA;Password=erVAjPhascXMJE4V;Trusted_Connection=False;MultipleActiveResultSets=true"
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  }
+}

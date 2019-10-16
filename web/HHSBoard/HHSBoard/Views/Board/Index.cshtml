@@ -19,24 +19,29 @@
 <button id="navLeft" class="btn btn-primary btn-circle btn-lg btn-navigation-left"><i class="fa fa-arrow-left"></i></button>
 <button id="navRight" class="btn btn-primary btn-circle btn-lg btn-navigation-right"><i class="fa fa-arrow-right"></i></button>
 
-@if ((int)ViewBag.TableType == 0)
+
+@if((int)ViewBag.TableType == 0){
+     
+    @await Html.PartialAsync("_ImageBoard");
+}
+else if ((int)ViewBag.TableType == 1)
 {
     var purpose = applicationDbContext.Purpose.SingleOrDefault(p => p.BoardID == Model.ID);
     @await Html.PartialAsync("_Purpose", purpose);
 }
-else if ((int)ViewBag.TableType == 1)
+else if ((int)ViewBag.TableType == 2)
 {
     @await Html.PartialAsync("_CelebrationTable");
 }
-else if ((int)ViewBag.TableType == 2)
+else if ((int)ViewBag.TableType == 3)
 {
     @await Html.PartialAsync("_WIPTable");
 }
-else if ((int)ViewBag.TableType == 3)
+else if ((int)ViewBag.TableType == 4)
 {
     @await Html.PartialAsync("_NewImpOpsTable");
 }
-else if ((int)ViewBag.TableType == 4)
+else if ((int)ViewBag.TableType == 5)
 {
     @await Html.PartialAsync("_ImpIdeasImplementedTable");
 }

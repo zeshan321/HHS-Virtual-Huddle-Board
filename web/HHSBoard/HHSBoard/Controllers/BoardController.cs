@@ -1,4 +1,5 @@
 ﻿using HHSBoard.Data;
+using HHSBoard.Extensions;
 using HHSBoard.Helpers;
 using HHSBoard.Models;
 using HHSBoard.Models.BoardViewModels;
@@ -641,6 +642,8 @@ namespace HHSBoard.Controllers
                 var total = await table.CountAsync();
                 //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
+                table = table.Sort(typeof(Celebration), boardTableViewModel.Sort, boardTableViewModel.Order);
+
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     table = table.Where(c => c.Who.ToUpper().Contains(search)
@@ -660,6 +663,8 @@ namespace HHSBoard.Controllers
                 var table = _applicationDbContext.WIPs.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
                 //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+                table = table.Sort(typeof(WIP), boardTableViewModel.Sort, boardTableViewModel.Order);
 
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {
@@ -687,6 +692,8 @@ namespace HHSBoard.Controllers
                 var total = await table.CountAsync();
                 //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
+                table = table.Sort(typeof(NewImpOp), boardTableViewModel.Sort, boardTableViewModel.Order);
+
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {
                     table = table.Where(w => w.Legend.ToUpper().Contains(search)
@@ -710,6 +717,8 @@ namespace HHSBoard.Controllers
                 var table = _applicationDbContext.ImpIdeasImplemented.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
                 //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+
+                table = table.Sort(typeof(ImpIdeasImplemented), boardTableViewModel.Sort, boardTableViewModel.Order);
 
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {

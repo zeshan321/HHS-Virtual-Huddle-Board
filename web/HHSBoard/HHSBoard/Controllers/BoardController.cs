@@ -83,7 +83,8 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
 
             var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createCelebrationModel.BoardID);
             if (board == null)
@@ -98,7 +99,7 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 _applicationDbContext.Celebrations.Add(new Celebration
                 {
@@ -140,7 +141,9 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+
             var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createWipModel.BoardID);
             if (board == null)
             {
@@ -154,7 +157,7 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 _applicationDbContext.WIPs.Add(new WIP
                 {
@@ -213,7 +216,9 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+
             var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createNewImpOp.BoardID);
             if (board == null)
             {
@@ -227,7 +232,7 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 _applicationDbContext.NewImpOps.Add(new NewImpOp
                 {
@@ -280,7 +285,9 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+
             var board = _applicationDbContext.Boards.SingleOrDefault(b => b.ID == createImpIdeasImplemented.BoardID);
             if (board == null)
             {
@@ -300,7 +307,7 @@ namespace HHSBoard.Controllers
                 return Json("Date is required.");
             }
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 _applicationDbContext.ImpIdeasImplemented.Add(new ImpIdeasImplemented
                 {
@@ -360,7 +367,8 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
 
             if (fieldDeleteModel.Delete == null || !fieldDeleteModel.Delete.Any())
             {
@@ -386,7 +394,7 @@ namespace HHSBoard.Controllers
                 fieldDeleteModel.Delete.Remove(remove);
             }
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 if (fieldDeleteModel.TableType == TableType.CELEBRATION)
                 {
@@ -453,9 +461,10 @@ namespace HHSBoard.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
-            var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
 
-            if (isAdmin)
+            if (bypassChangeRequest)
             {
                 if (fieldUpdateModel.TableType == TableType.CELEBRATION)
                 {

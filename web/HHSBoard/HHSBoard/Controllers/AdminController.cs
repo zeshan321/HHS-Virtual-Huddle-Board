@@ -69,7 +69,7 @@ namespace HHSBoard.Controllers
             return Json("Updated unit access");
         }
 
-        public async Task<IActionResult> UpdateAdminRole(UpdateAdminRoleModel updateAdminRoleModel)
+        public async Task<IActionResult> UpdateAdminRole(UpdateRoleModel updateAdminRoleModel)
         {
             var user = await _applicationDbContext.Users.SingleOrDefaultAsync(u => u.Id.Equals(updateAdminRoleModel.ID));
             if (user == null)
@@ -98,6 +98,35 @@ namespace HHSBoard.Controllers
             return Json("Updated role.");
         }
 
+        public async Task<IActionResult> UpdateStaffRole(UpdateRoleModel updateRoleModel)
+        {
+            var user = await _applicationDbContext.Users.SingleOrDefaultAsync(u => u.Id.Equals(updateRoleModel.ID));
+            if (user == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("No user found");
+            }
+
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+
+            var isAlreadyStaff = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(staffRoleID));
+            if (isAlreadyStaff)
+            {
+                _applicationDbContext.UserRoles.RemoveRange(_applicationDbContext.UserRoles.Where(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(staffRoleID)));
+            }
+            else
+            {
+                await _applicationDbContext.UserRoles.AddAsync(new IdentityUserRole<string>
+                {
+                    UserId = user.Id,
+                    RoleId = staffRoleID
+                });
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Updated role.");
+        }
+
         public async Task<IActionResult> GetUserData(BoardTableModel boardTableViewModel)
         {
             var search = boardTableViewModel.Search?.ToUpper().Trim();
@@ -106,6 +135,7 @@ namespace HHSBoard.Controllers
             var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
 
             List<UserViewModel> userViewModels = new List<UserViewModel>();
             foreach (var applicationUser in table)
@@ -126,6 +156,7 @@ namespace HHSBoard.Controllers
                     ID = applicationUser.Id,
                     Username = applicationUser.UserName,
                     IsAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(applicationUser.Id) && r.RoleId.Equals(adminRoleID)),
+                    IsStaff = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(applicationUser.Id) && r.RoleId.Equals(staffRoleID)),
                     AdminUnitViewModels = adminUnitViewModels
                 });
             }

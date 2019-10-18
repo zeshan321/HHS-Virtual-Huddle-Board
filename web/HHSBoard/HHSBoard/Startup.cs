@@ -108,7 +108,7 @@ namespace HHSBoard
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            string[] roles = { "Admin", "User" };
+            string[] roles = { "Admin", "Staff", "User" };
 
             IdentityResult roleResult;
             foreach (var role in roles)
@@ -116,7 +116,7 @@ namespace HHSBoard
                 var roleExists = await roleManager.RoleExistsAsync(role);
                 if (!roleExists)
                 {
-                    roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
+                    roleResult = await roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
         }

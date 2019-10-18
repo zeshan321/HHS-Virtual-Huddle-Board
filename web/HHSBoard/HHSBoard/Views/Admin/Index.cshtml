@@ -38,6 +38,34 @@
                 }
             });
         });
+
+        $("table").on("click", "[name='staffCheckbox']", function (e) {
+            var checkbox = $(this);
+            var userID = checkbox.attr("data-user-id");
+
+            $.ajax({
+                type: "POST",
+                url: "/Admin/UpdateStaffRole",
+                data: { ID: userID, IsAdmin: !checkbox.checked },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully updated user role.'
+                    }, {
+                            type: 'success'
+                    });
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+        });
     });
 
     function initTable() {
@@ -113,6 +141,14 @@
             return '<input data-user-id="' + row.id + '" name="adminCheckbox" type="checkbox" value="0">';
         }
     }
+
+    function staffFormatter(value, row, index) {
+        if (value) {
+            return '<input data-user-id="' + row.id + '" name="staffCheckbox" type="checkbox" value="1" checked>';
+        } else {
+            return '<input data-user-id="' + row.id + '" name="staffCheckbox" type="checkbox" value="0">';
+        }
+    }
     
     function unitFormatter(value, row, index) {
         var result = '<select class="js-example-basic-multiple" name="units[]" multiple="multiple">';
@@ -149,6 +185,7 @@
             <th data-field="id" data-visible="false" class="fit">ID</th>
             <th data-field="username" class="fit">Username</th>
             <th data-field="isAdmin" class="fit" data-formatter="adminFormatter">Admin</th>
+            <th data-field="isStaff" class="fit" data-formatter="staffFormatter">Staff</th>
             <th data-field="units" class="fit" data-formatter="unitFormatter">Units</th>
         </tr>
     </thead>

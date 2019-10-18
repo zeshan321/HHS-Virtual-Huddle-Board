@@ -14,6 +14,8 @@ namespace HHSBoard.Models.AdminViewModels
 
         public bool IsAdmin { get; set; }
 
+        public bool IsStaff { get; set; }
+
         public List<AdminUnitViewModel> AdminUnitViewModels { get; set; }
     }
 }

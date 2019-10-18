@@ -639,11 +639,11 @@ namespace HHSBoard.Controllers
             {
                 var table = _applicationDbContext.Celebrations.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+                //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
-                    data = data.Where(c => c.Who.ToUpper().Contains(search)
+                    table = table.Where(c => c.Who.ToUpper().Contains(search)
                     || c.What.ToUpper().Contains(search)
                     || c.Why.ToUpper().Contains(search));
                 }
@@ -651,7 +651,7 @@ namespace HHSBoard.Controllers
                 return new CelebrationViewModel
                 {
                     Total = total,
-                    Celebrations = await data.ToListAsync()
+                    Celebrations = await table.ToListAsync()
                 };
             }
 
@@ -659,11 +659,11 @@ namespace HHSBoard.Controllers
             {
                 var table = _applicationDbContext.WIPs.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+                //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {
-                    data = data.Where(w => w.Why.ToUpper().Contains(search)
+                    table = table.Where(w => w.Why.ToUpper().Contains(search)
                     || w.Updates.ToUpper().Contains(search)
                     || w.StrategicGoals.ToUpper().Contains(search)
                     || w.StaffWorkingOnOpportunity.ToUpper().Contains(search)
@@ -677,7 +677,7 @@ namespace HHSBoard.Controllers
                 return new WIPViewModel
                 {
                     Total = total,
-                    WIPs = await data.ToListAsync()
+                    WIPs = await table.ToListAsync()
                 };
             }
 
@@ -685,11 +685,11 @@ namespace HHSBoard.Controllers
             {
                 var table = _applicationDbContext.NewImpOps.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+                //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {
-                    data = data.Where(w => w.Legend.ToUpper().Contains(search)
+                    table = table.Where(w => w.Legend.ToUpper().Contains(search)
                     || w.PersonIdentifyingOpportunity.ToUpper().Contains(search)
                     || w.Problem.ToUpper().Contains(search)
                     || w.StaffWorkingOnOpportunity.ToUpper().Contains(search)
@@ -701,7 +701,7 @@ namespace HHSBoard.Controllers
                 return new NewImpOpViewModel
                 {
                     Total = total,
-                    NewImpOps = await data.ToListAsync()
+                    NewImpOps = await table.ToListAsync()
                 };
             }
 
@@ -709,11 +709,11 @@ namespace HHSBoard.Controllers
             {
                 var table = _applicationDbContext.ImpIdeasImplemented.Where(c => c.BoardID == boardTableViewModel.BoardID);
                 var total = await table.CountAsync();
-                var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
+                //var data = table.Skip(boardTableViewModel.Offset).Take(boardTableViewModel.Limit);
 
                 if (!string.IsNullOrWhiteSpace(search?.ToUpper().Trim()))
                 {
-                    data = data.Where(w => w.Name.ToUpper().Contains(search)
+                    table = table.Where(w => w.Name.ToUpper().Contains(search)
                     || w.Problem.ToUpper().Contains(search)
                     || w.Owner.ToUpper().Contains(search)
                     || w.Pillar.ToUpper().Contains(search)
@@ -726,7 +726,7 @@ namespace HHSBoard.Controllers
                 return new ImpIdeasImplementedViewModel
                 {
                     Total = total,
-                    ImpIdeasImplementeds = await data.ToListAsync()
+                    ImpIdeasImplementeds = await table.ToListAsync()
                 };
             }
 

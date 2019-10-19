@@ -11,7 +11,7 @@
             dialogsInBody: true
         });
 
-        $(".dailyContainer").html($('#purpose').val());
+        $(".purposeContainer").html($('#purpose').val());
 
         $("#updatePurpose").submit(function (e) {
             e.preventDefault();
@@ -28,7 +28,7 @@
                             type: 'success'
                     });
 
-                    $(".dailyContainer").html($('#purpose').val());
+                    $(".purposeContainer").html($('#purpose').val());
                 },
                 error: function (data) {
                     var response = data.responseJSON;
@@ -45,7 +45,7 @@
     });
 </script>
 
-<div class="dailyContainer">
+<div class="purposeContainer">
 </div>
 
 <!-- Modal -->

@@ -133,7 +133,7 @@ namespace HHSBoard
             db.Defaults.Add(new Default
             {
                 Field = "BussinessRules",
-                Value = "<h1>Daily Performance Huddle</h1><h2>Business Rules</h2><h3>{{Name}}</h3><br><h4><b>THE PURPOSE:</b> This daily performance huddle is focused on improvements, using the team's collective knowledge. The huddle is designed to ensure daily communication and synthesis of unit improvement opportunities at various levels of progress. This process is designed to engage staff in problem solving and making connections between the work and our goals.</h4>"
+                Value = "<h1 style=\"text-align: left;\">Purpose:</h1><p style=\"text-align: left;\"><br></p><h2 style=\"text-align: left;\">Our CQI Huddle brings our team together daily to:</h2><h3><ul><li style=\"text-align: left;\">Prioritize and work through opportunities for sustained improvement</li></ul><ul><li style=\"text-align: left;\">Review metrics specific to our team that align our work to HHS goals to achieve Best Care for All</li></ul><ul><li style=\"text-align: left;\">Celebrate our successes</li></ul></h3>"
             });
 
             // Save

@@ -1,6 +1,7 @@
 ﻿<script src="~/lib/jquery-effects/confetti/jquery.confetti.js"></script>
 
 <script>
+
     var $table;
 
     $(function () {
@@ -9,7 +10,14 @@
         // Set textarea as summernote when textarea dynamically added.
         $.initialize("textarea", function () {
             if ($(this).hasClass("form-control") && $(this).hasClass("input-large")) {
-                $(this).summernote();
+                $(this).summernote({
+                    height:'300px',
+                    popover: {
+                        image:[
+                            ['image', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']]
+                            ]
+                    }
+                });
             }
         });
 
@@ -227,7 +235,7 @@
     }
 </script>
 
-<div class="page-header">
+<div class="page-header pre">
     <h1>Celebrations</h1>
 </div>
 
@@ -263,7 +271,7 @@
 
 <!-- Modal -->
 <div id="newCelebrationModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
 
         <!-- Modal content-->
         <form id="createCelebrationForm">

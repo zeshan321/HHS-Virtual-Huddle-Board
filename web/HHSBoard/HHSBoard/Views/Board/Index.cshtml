@@ -20,8 +20,9 @@
 <button id="navRight" class="btn btn-primary btn-circle btn-lg btn-navigation-right"><i class="fa fa-arrow-right"></i></button>
 
 
-@if((int)ViewBag.TableType == 0){
-     
+@if ((int)ViewBag.TableType == 0)
+{
+
     @await Html.PartialAsync("_ImageBoard");
 }
 else if ((int)ViewBag.TableType == 1)
@@ -44,6 +45,14 @@ else if ((int)ViewBag.TableType == 4)
 else if ((int)ViewBag.TableType == 5)
 {
     @await Html.PartialAsync("_ImpIdeasImplementedTable");
+}
+else if ((int)ViewBag.TableType == 6)
+{
+    @await Html.PartialAsync("_Drivers");
+}
+else if ((int)ViewBag.TableType == 7)
+{
+    @await Html.PartialAsync("_Scorecards");
 }
 else
 {

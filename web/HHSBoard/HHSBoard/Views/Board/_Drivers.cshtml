@@ -1,0 +1,124 @@
+﻿<style>
+    .modal-dialog {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .modal-content {
+      height: auto;
+      min-height: 100%;
+      border-radius: 0;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+    }
+
+    .modal-body {
+        height: 80vh;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#uploadButton").click(function (e) {
+            if (e.target !== this)
+                return;
+
+            $("#uploadLabel").click();
+        })
+
+        $("#file").change(function () {
+            $("#submitFile").click();
+        });
+
+        // /Uploads/1/driver/Test%201,%202018.pdf
+        $.ajax({
+                type: "POST",
+                url: "/Board/GetListOfFiles",
+                data: { BoardID: @ViewBag.BoardID, type: "driver" },
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var name = data[i];
+
+                        $(".row").append(`<div class="col-sm-6 col-md-4">
+                                        <div class="thumbnail">
+                                            <div class="caption text-center">
+                                                <h3>${name}</h3>
+                                                <br />
+                                                <p><a href="#" class="btn btn-primary view-button" role="button" data-file="${name}">View</a> <a href="#" class="btn btn-default" role="button">Download</a> <a href="#" class="btn btn-danger" role="button">Delete</a></p>
+                                            </div>
+                                        </div>
+                                    </div>`);
+                    }
+                },
+                error: function (data) {
+                }
+        });
+
+        $('body').on('click', '.view-button', function () {
+            var file = $(this).attr("data-file");
+            var url = window.location.origin + "/Uploads/@ViewBag.BoardID/driver/" + file;  
+
+            if (file.endsWith(".png") || file.endsWith(".jpg")) {
+                $(".modal-body").empty();
+                $(".modal-body").append(`<img width='100%' height='100%' src='${url}'/>`);
+                $("#fileViewer").modal("show");
+            } else {
+                url = encodeURIComponent(url);
+
+                $(".modal-body").empty();
+                $(".modal-body").append(`<iframe src='https://docs.google.com/gview?url=${url}&embedded=true' width='100%' height='100%' frameborder='0'></iframe>`);
+                $("#fileViewer").modal("show");
+            }
+        });
+    });
+</script>
+
+<div class="page-header">
+    <h1>Drivers</h1>
+</div>
+
+<div class="row">
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+            <div class="caption text-center">
+                <h3>Upload File</h3>
+                <br />
+                <p></p>
+                <form action="/Board/FileUpload" method="post" enctype="multipart/form-data">
+                    <input type="text" name="type" class="inputfile" value="driver" required />
+                    <input type="text" name="BoardID" class="inputfile" value="@ViewBag.BoardID" required />
+                    <input type="text" name="TableType" class="inputfile" value="@ViewBag.TableType" required />
+                    <input type="file" name="formFile" id="file" class="inputfile" required />
+                    <button id="uploadButton" class="btn btn-primary" role="button"><label id="uploadLabel" for="file">Choose a file</label></button>
+                    <button id="submitFile" type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="fileViewer" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">File Preview</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -44,5 +44,6 @@
     <Content Remove="wwwroot\images\Patients.png" />
     <Content Remove="wwwroot\images\Research.png" />
     <Content Remove="wwwroot\images\People.png" />
+    <Content Remove="wwwroot\document\1. SW Huddle - April 16 2018.doc" />
   </ItemGroup>
 </Project>

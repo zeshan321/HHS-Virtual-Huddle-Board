@@ -5,7 +5,7 @@ $.fn.editableform.buttons =
 $.fn.combodate.defaults.maxYear = new Date().getFullYear();
 
 // List of registered tables in order.
-var tables = ["HUBBLE_BOARD_IMAGE", "PURPOSE", "CELEBRATION", "WIP","NEWIMPOP", "IMPIDEAS"];
+var tables = ["HUBBLE_BOARD_IMAGE", "PURPOSE", "CELEBRATION", "WIP","NEWIMPOP", "IMPIDEAS", "DRIVERS", "SCORECARDS"];
 
 $(function () {
     // Get current table

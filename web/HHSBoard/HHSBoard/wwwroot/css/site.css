@@ -151,6 +151,25 @@
 .purposeContainer {
 }
 
+/* File upload */
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+#uploadLabel {
+    margin-bottom: 0px !important;
+    font-weight: normal !important;
+    cursor: pointer;
+}
+
+#submitFile {
+    display: none;
+}
 .modal-dialog-full {
 	width: 100%;
 	height: 100%;

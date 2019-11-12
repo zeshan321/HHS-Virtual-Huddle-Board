@@ -10,6 +10,8 @@ using HHSBoard.Models.PurposeViewModels;
 using HHSBoard.Models.WipViewModels;
 using HHSBoard.Models.WIPViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -30,11 +33,13 @@ namespace HHSBoard.Controllers
     {
         private ApplicationDbContext _applicationDbContext;
         private UserManager<ApplicationUser> _userManager;
+        private readonly IHostingEnvironment _hostEnvironment;
 
-        public BoardController(ApplicationDbContext applicationDbContext, UserManager<ApplicationUser> userManager)
+        public BoardController(ApplicationDbContext applicationDbContext, UserManager<ApplicationUser> userManager, IHostingEnvironment hostEnvironment)
         {
             _applicationDbContext = applicationDbContext;
             _userManager = userManager;
+            _hostEnvironment = hostEnvironment;
         }
 
         public async Task<IActionResult> Index(int boardID, TableType tableType)
@@ -587,8 +592,6 @@ namespace HHSBoard.Controllers
             return Json("Updated.");
         }
 
-        
-
         public PartialViewResult CelebrationTable()
         {
             return PartialView();
@@ -747,7 +750,6 @@ namespace HHSBoard.Controllers
             return (T)await GetViewModel(boardTableViewModel);
         }
         
-
         public async Task<IActionResult> GetChangeRequests(GetChangeRequestModel getChangeRequestModel)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -756,6 +758,89 @@ namespace HHSBoard.Controllers
                 .ToListAsync();
 
             return Json(changeRequests);
+        }
+
+        public PartialViewResult Drivers()
+        {
+            return PartialView();
+        }
+
+        public PartialViewResult Scorecards()
+        {
+            return PartialView();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FileUpload(FileUploadModel fileUploadModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+            if (!bypassChangeRequest)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var fileName = fileUploadModel.FormFile.FileName;
+            var path = _hostEnvironment.WebRootPath + Path.DirectorySeparatorChar + "Uploads" + Path.DirectorySeparatorChar + fileUploadModel.BoardId + Path.DirectorySeparatorChar + fileUploadModel.Type;
+            System.IO.Directory.CreateDirectory(path);
+
+            var filePath = path + Path.DirectorySeparatorChar + fileName;
+            if (fileUploadModel.FormFile.Length > 0)
+            {
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await fileUploadModel.FormFile.CopyToAsync(stream);
+                }
+
+                System.IO.File.SetCreationTime(filePath, DateTime.Now);
+            }
+
+            return RedirectToAction("Index", "Board", new { boardId = fileUploadModel.BoardId, tableType = fileUploadModel.TableType });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFile(FileUploadModel fileUploadModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+            if (!bypassChangeRequest)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("You do not have permission!");
+            }
+
+            var fileName = fileUploadModel.FileName;
+            var path = _hostEnvironment.WebRootPath + Path.DirectorySeparatorChar + "Uploads" + Path.DirectorySeparatorChar + fileUploadModel.BoardId + Path.DirectorySeparatorChar + fileUploadModel.Type;
+            var filePath = path + Path.DirectorySeparatorChar + fileName;
+            System.IO.File.Delete(filePath);
+
+            return Json("Deleted!");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetListOfFiles(FileUploadModel fileUploadModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+            if (!bypassChangeRequest)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var path = _hostEnvironment.WebRootPath + Path.DirectorySeparatorChar + "Uploads" + Path.DirectorySeparatorChar + fileUploadModel.BoardId + Path.DirectorySeparatorChar + fileUploadModel.Type;
+            System.IO.Directory.CreateDirectory(path);
+
+            DirectoryInfo info = new DirectoryInfo(path);
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
+            var fileNames = files.Select(c => c.Name).ToList();
+
+            return Json(fileNames);
         }
     }
 }

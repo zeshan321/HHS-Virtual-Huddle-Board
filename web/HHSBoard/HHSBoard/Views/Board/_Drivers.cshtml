@@ -1,27 +1,4 @@
-﻿<style>
-    .modal-dialog {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    .modal-content {
-      height: auto;
-      min-height: 100%;
-      border-radius: 0;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-    }
-
-    .modal-body {
-        height: 80vh;
-    }
-</style>
-<script>
+﻿<script>
     $(document).ready(function () {
         $("#uploadButton").click(function (e) {
             if (e.target !== this)
@@ -44,12 +21,14 @@
                     for (var i = 0; i < data.length; i++) {
                         var name = data[i];
 
-                        $(".row").append(`<div class="col-sm-6 col-md-4">
+                        var url = window.location.origin + "/Uploads/@ViewBag.BoardID/driver/" + name;  
+
+                        $(".row").append(`<div class="col-sm-6 col-md-4" data-file="${name}">
                                         <div class="thumbnail">
                                             <div class="caption text-center">
                                                 <h3>${name}</h3>
                                                 <br />
-                                                <p><a href="#" class="btn btn-primary view-button" role="button" data-file="${name}">View</a> <a href="#" class="btn btn-default" role="button">Download</a> <a href="#" class="btn btn-danger" role="button">Delete</a></p>
+                                                <p><a href="#" class="btn btn-primary view-button" role="button" data-file="${name}">View</a> <a class="btn btn-default" role="button" href="${url}">Download</a> <a href="#" class="btn btn-danger delete-button" data-file="${name}" role="button">Delete</a></p>
                                             </div>
                                         </div>
                                     </div>`);
@@ -59,21 +38,49 @@
                 }
         });
 
+        var driverFile;
+        var driverUrl;
         $('body').on('click', '.view-button', function () {
-            var file = $(this).attr("data-file");
-            var url = window.location.origin + "/Uploads/@ViewBag.BoardID/driver/" + file;  
+            driverFile = $(this).attr("data-file");
+            driverUrl = window.location.origin + "/Uploads/@ViewBag.BoardID/driver/" + driverFile;  
 
-            if (file.endsWith(".png") || file.endsWith(".jpg")) {
-                $(".modal-body").empty();
-                $(".modal-body").append(`<img width='100%' height='100%' src='${url}'/>`);
-                $("#fileViewer").modal("show");
+            $("#fileViewerBody").empty();
+            $("#fileViewer").modal("show");
+        });
+
+        $('#fileViewer').on('shown.bs.modal', function (e) {
+            if (driverFile.endsWith(".png") || driverFile.endsWith(".jpg")) {
+                $("#fileViewerBody").append(`<img width='100%' height='100%' src='${driverUrl}'/>`);
             } else {
-                url = encodeURIComponent(url);
-
-                $(".modal-body").empty();
-                $(".modal-body").append(`<iframe src='https://docs.google.com/gview?url=${url}&embedded=true' width='100%' height='100%' frameborder='0'></iframe>`);
-                $("#fileViewer").modal("show");
+                driverUrl = encodeURIComponent(driverUrl);
+                $("#fileViewerBody").append(`<iframe src='https://docs.google.com/gview?url=${driverUrl}&embedded=true' width='100%' height='100%' frameborder='0'></iframe>`);
             }
+        });
+
+        $('body').on('click', '.delete-button', function () {
+            var file = $(this).attr("data-file");
+            $.ajax({
+                type: "POST",
+                url: "/Board/DeleteFile",
+                data: { BoardID: @ViewBag.BoardID, type: "driver", fileName: file },
+                dataType: "json",
+                success: function (data) {
+                    $(`div[data-file='${file}']`).remove();
+
+                    $.notify({
+                        message: "Successfully deleted!"
+                    }, {
+                            type: 'success'
+                    });
+                },
+                error: function (data) {
+                    $.notify({
+                        message: "No permission!"
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
         });
     });
 </script>
@@ -104,18 +111,19 @@
 
 <!-- Modal -->
 <div id="fileViewer" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-full">
 
         <!-- Modal content-->
-        <div class="modal-content">
+        <div class="modal-content modal-content-full">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">File Preview</h4>
             </div>
-            <div class="modal-body">
+            <div id="fileViewerBody" class="modal-body modal-body-full viewer-body">
 
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-default viewer-refresh">Refresh</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>

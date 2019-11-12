@@ -20,3 +20,25 @@ var getUrlParameter = function getUrlParameter(sParam) {
         }
     }
 };
+
+$(document).ready(function () {
+    var resourceFile;
+    var resourceUrl;
+
+    $("[name=resourceView]").click(function () {
+        resourceFile = $(this).attr("data-file");
+        resourceUrl = window.location.origin + "/document/" + resourceFile; 
+
+        $("#resourceViewerBody").empty();
+        $("#resourceViewer").modal("show");
+    });
+
+    $('#resourceViewer').on('shown.bs.modal', function (e) {
+        resourceUrl = encodeURIComponent(resourceUrl);
+        $("#resourceViewerBody").append(`<iframe src='https://docs.google.com/gview?url=${resourceUrl}&embedded=true' width='100%' height='100%' frameborder='0'></iframe>`);
+    });
+
+    $(".viewer-refresh").click(function () {
+        $('.viewer-body > iframe').attr("src", $('.viewer-body > iframe').attr("src"));
+    });
+});

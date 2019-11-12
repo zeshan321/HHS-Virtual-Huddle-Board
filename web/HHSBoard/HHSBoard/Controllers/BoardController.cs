@@ -793,9 +793,32 @@ namespace HHSBoard.Controllers
                 {
                     await fileUploadModel.FormFile.CopyToAsync(stream);
                 }
+
+                System.IO.File.SetCreationTime(filePath, DateTime.Now);
             }
 
             return RedirectToAction("Index", "Board", new { boardId = fileUploadModel.BoardId, tableType = fileUploadModel.TableType });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFile(FileUploadModel fileUploadModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+            if (!bypassChangeRequest)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("You do not have permission!");
+            }
+
+            var fileName = fileUploadModel.FileName;
+            var path = _hostEnvironment.WebRootPath + Path.DirectorySeparatorChar + "Uploads" + Path.DirectorySeparatorChar + fileUploadModel.BoardId + Path.DirectorySeparatorChar + fileUploadModel.Type;
+            var filePath = path + Path.DirectorySeparatorChar + fileName;
+            System.IO.File.Delete(filePath);
+
+            return Json("Deleted!");
         }
 
         [HttpPost]
@@ -814,7 +837,7 @@ namespace HHSBoard.Controllers
             System.IO.Directory.CreateDirectory(path);
 
             DirectoryInfo info = new DirectoryInfo(path);
-            FileInfo[] files = info.GetFiles().OrderBy(p => p.CreationTime).ToArray();
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
             var fileNames = files.Select(c => c.Name).ToList();
 
             return Json(fileNames);

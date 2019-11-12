@@ -12,5 +12,6 @@ namespace HHSBoard.Models
         public string Type { get; set; }
         public int BoardId { get; set; }
         public int TableType { get; set; }
+        public string FileName { get;  set; }
     }
 }

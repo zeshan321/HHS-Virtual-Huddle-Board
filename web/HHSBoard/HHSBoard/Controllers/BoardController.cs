@@ -797,7 +797,7 @@ namespace HHSBoard.Controllers
                 System.IO.File.SetCreationTime(filePath, DateTime.Now);
             }
 
-            return RedirectToAction("Index", "Board", new { boardId = fileUploadModel.BoardId, tableType = fileUploadModel.TableType });
+            return RedirectToAction("Index", "Board", new { boardId = fileUploadModel.BoardId, TableType = fileUploadModel.TableType });
         }
 
         [HttpPost]

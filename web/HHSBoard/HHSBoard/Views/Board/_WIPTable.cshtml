@@ -166,7 +166,10 @@
         }
 
         $table.bootstrapTable('destroy').bootstrapTable({
-            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+            exportTypes: ['json', 'xml', 'txt', 'sql', 'excel', 'pdf'],
+            exportOptions: {
+        	    fileName: exportDateFilename()
+            }
         }).on('all.bs.table', function (e, name, args) {
             GetChangeRequests();
         });
@@ -252,7 +255,7 @@
        data-pagination="false"
        data-show-export="true"
        data-search="true"
-       data-mobile-responsive="true"
+       data-mobile-responsive="false"
        data-check-on-init="true"
        data-unique-id="id"
        data-id-field="id"

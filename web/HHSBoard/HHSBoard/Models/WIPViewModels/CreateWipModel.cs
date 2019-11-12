@@ -3,7 +3,7 @@ using System;
 
 namespace HHSBoard.Models.WIPViewModels
 {
-    public class CreateWipModel
+    public class CreateWipModel : BaseCreateModel
     {
         public string Saftey { get; set; }
         public string Name { get; set; }

@@ -87,6 +87,8 @@ namespace HHSBoard.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCeleration(CreateCelebrationModel createCelebrationModel)
         {
+            createCelebrationModel.EncodeUserHtml();
+
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
@@ -109,9 +111,9 @@ namespace HHSBoard.Controllers
             {
                 _applicationDbContext.Celebrations.Add(new Celebration
                 {
-                    Who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who),
-                    What = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What),
-                    Why = createCelebrationModel.Why ?? HttpUtility.HtmlEncode(createCelebrationModel.Why),
+                    Who = createCelebrationModel.Who,
+                    What = createCelebrationModel.What,
+                    Why = createCelebrationModel.Why,
                     Date = createCelebrationModel.Date.Value,
                     BoardID = createCelebrationModel.BoardID
                 });
@@ -120,9 +122,9 @@ namespace HHSBoard.Controllers
             {
                 dynamic json = new JObject();
                 json.id = Guid.NewGuid().ToString();
-                json.who = createCelebrationModel.Who ?? HttpUtility.HtmlEncode(createCelebrationModel.Who);
-                json.what = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What);
-                json.why = createCelebrationModel.What ?? HttpUtility.HtmlEncode(createCelebrationModel.What);
+                json.who = createCelebrationModel.Who;
+                json.what = createCelebrationModel.What;
+                json.why = createCelebrationModel.What;
                 json.date = createCelebrationModel.Date.Value;
                 json.BoardID = createCelebrationModel.BoardID;
 
@@ -145,6 +147,8 @@ namespace HHSBoard.Controllers
         [HttpPost]
         public async Task<IActionResult> AddWIP(CreateWipModel createWipModel)
         {
+            createWipModel.EncodeUserHtml();
+
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
@@ -168,38 +172,38 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.WIPs.Add(new WIP
                 {
                     BoardID = createWipModel.BoardID,
-                    Saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey),
-                    Name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name),
+                    Saftey = createWipModel.Saftey,
+                    Name = createWipModel.Name,
                     Date = createWipModel.Date.Value,
-                    Problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem),
-                    EightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs),
-                    StrategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals),
+                    Problem = createWipModel.Problem,
+                    EightWs = createWipModel.EightWs,
+                    StrategicGoals = createWipModel.StrategicGoals,
                     IsPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity,
                     PickChart = createWipModel.PickChart,
                     DateAssigned = createWipModel.DateAssigned,
-                    StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity),
-                    Why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why),
-                    JustDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt),
-                    Updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates)
+                    StaffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity,
+                    Why = createWipModel.Why,
+                    JustDoIt = createWipModel.JustDoIt,
+                    Updates = createWipModel.Updates
                 });
             }
             else
             {
                 dynamic json = new JObject();
                 json.id = Guid.NewGuid().ToString();
-                json.saftey = createWipModel.Saftey ?? HttpUtility.HtmlEncode(createWipModel.Saftey);
-                json.name = createWipModel.Name ?? HttpUtility.HtmlEncode(createWipModel.Name);
+                json.saftey = createWipModel.Saftey;
+                json.name = createWipModel.Name;
                 json.date = createWipModel.Date.Value;
-                json.problem = createWipModel.Problem ?? HttpUtility.HtmlEncode(createWipModel.Problem);
-                json.eightWs = createWipModel.EightWs ?? HttpUtility.HtmlEncode(createWipModel.EightWs);
-                json.strategicGoals = createWipModel.StrategicGoals ?? HttpUtility.HtmlEncode(createWipModel.StrategicGoals);
+                json.problem = createWipModel.Problem;
+                json.eightWs = createWipModel.EightWs;
+                json.strategicGoals = createWipModel.StrategicGoals;
                 json.isPtFamilyInvovlmentOpportunity = createWipModel.IsPtFamilyInvovlmentOpportunity;
                 json.pickChart = createWipModel.PickChart;
                 json.dateAssigned = createWipModel.DateAssigned;
-                json.staffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createWipModel.StaffWorkingOnOpportunity);
-                json.why = createWipModel.Why ?? HttpUtility.HtmlEncode(createWipModel.Why);
-                json.justDoIt = createWipModel.JustDoIt ?? HttpUtility.HtmlEncode(createWipModel.JustDoIt);
-                json.updates = createWipModel.Updates ?? HttpUtility.HtmlEncode(createWipModel.Updates);
+                json.staffWorkingOnOpportunity = createWipModel.StaffWorkingOnOpportunity;
+                json.why = createWipModel.Why;
+                json.justDoIt = createWipModel.JustDoIt;
+                json.updates = createWipModel.Updates;
 
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
@@ -220,6 +224,8 @@ namespace HHSBoard.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewImpOp(CreateNewImpOp createNewImpOp)
         {
+            createNewImpOp.EncodeUserHtml();
+
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
@@ -243,32 +249,32 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.NewImpOps.Add(new NewImpOp
                 {
                     BoardID = createNewImpOp.BoardID,
-                    Legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend),
-                    PersonIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity),
+                    Legend = createNewImpOp.Legend,
+                    PersonIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity,
                     DateIdentified = createNewImpOp.DateIdentified.Value,
-                    Problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem),
-                    StaffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity),
-                    StrategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals),
+                    Problem = createNewImpOp.Problem,
+                    StaffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity,
+                    StrategicGoals = createNewImpOp.StrategicGoals,
                     IsPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity,
-                    EightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs),
+                    EightWs = createNewImpOp.EightWs,
                     PickChart = createNewImpOp.PickChart,
-                    JustDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt)
+                    JustDoIt = createNewImpOp.JustDoIt
                 });
             }
             else
             {
                 dynamic json = new JObject();
                 json.id = Guid.NewGuid().ToString();
-                json.legend = createNewImpOp.Legend ?? HttpUtility.HtmlEncode(createNewImpOp.Legend);
-                json.personIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.PersonIdentifyingOpportunity);
+                json.legend = createNewImpOp.Legend;
+                json.personIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity;
                 json.dateIdentified = createNewImpOp.DateIdentified.Value;
-                json.problem = createNewImpOp.Problem ?? HttpUtility.HtmlEncode(createNewImpOp.Problem);
-                json.staffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity ?? HttpUtility.HtmlEncode(createNewImpOp.StaffWorkingOnOpportunity);
-                json.strategicGoals = createNewImpOp.StrategicGoals ?? HttpUtility.HtmlEncode(createNewImpOp.StrategicGoals);
+                json.problem = createNewImpOp.Problem ;
+                json.staffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity;
+                json.strategicGoals = createNewImpOp.StrategicGoals;
                 json.isPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity;
-                json.eightWs = createNewImpOp.EightWs ?? HttpUtility.HtmlEncode(createNewImpOp.EightWs);
+                json.eightWs = createNewImpOp.EightWs;
                 json.pickChart = createNewImpOp.PickChart;
-                json.justDoIt = createNewImpOp.JustDoIt ?? HttpUtility.HtmlEncode(createNewImpOp.JustDoIt);
+                json.justDoIt = createNewImpOp.JustDoIt;
 
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {
@@ -289,6 +295,8 @@ namespace HHSBoard.Controllers
         [HttpPost]
         public async Task<IActionResult> AddImprovement(CreateImpIdeasImplemented createImpIdeasImplemented)
         {
+            createImpIdeasImplemented.EncodeUserHtml();
+
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
@@ -318,40 +326,40 @@ namespace HHSBoard.Controllers
                 _applicationDbContext.ImpIdeasImplemented.Add(new ImpIdeasImplemented
                 {
                     BoardID = createImpIdeasImplemented.BoardID,
-                    Name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name),
+                    Name = createImpIdeasImplemented.Name,
                     Date = createImpIdeasImplemented.Date.Value,
-                    Problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem),
-                    Owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner),
-                    Pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar),
+                    Problem = createImpIdeasImplemented.Problem,
+                    Owner = createImpIdeasImplemented.Owner,
+                    Pillar = createImpIdeasImplemented.Pillar,
                     IsPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity,
-                    EightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs),
+                    EightWs = createImpIdeasImplemented.EightWs,
                     PickChart = createImpIdeasImplemented.PickChart,
-                    JustDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt),
-                    Solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution),
+                    JustDoIt = createImpIdeasImplemented.JustDoIt,
+                    Solution = createImpIdeasImplemented.Solution,
                     DateComplete = createImpIdeasImplemented.DateComplete.Value,
                     WorkCreated = createImpIdeasImplemented.WorkCreated,
                     ProcessObservationCreated = createImpIdeasImplemented.ProcessObservationCreated,
-                    DateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase),
+                    DateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase,
                 });
             }
             else
             {
                 dynamic json = new JObject();
                 json.id = Guid.NewGuid().ToString();
-                json.name = createImpIdeasImplemented.Name ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Name);
+                json.name = createImpIdeasImplemented.Name;
                 json.date = createImpIdeasImplemented.Date.Value;
-                json.problem = createImpIdeasImplemented.Problem ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Problem);
-                json.owner = createImpIdeasImplemented.Owner ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Owner);
-                json.pillar = createImpIdeasImplemented.Pillar ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Pillar);
+                json.problem = createImpIdeasImplemented.Problem;
+                json.owner = createImpIdeasImplemented.Owner;
+                json.pillar = createImpIdeasImplemented.Pillar;
                 json.isPtFamilyInvovlmentOpportunity = createImpIdeasImplemented.IsPtFamilyInvovlmentOpportunity;
-                json.eightWs = createImpIdeasImplemented.EightWs ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.EightWs);
+                json.eightWs = createImpIdeasImplemented.EightWs;
                 json.pickChart = createImpIdeasImplemented.PickChart;
-                json.justDoIt = createImpIdeasImplemented.JustDoIt ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.JustDoIt);
-                json.solution = createImpIdeasImplemented.Solution ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.Solution);
+                json.justDoIt = createImpIdeasImplemented.JustDoIt;
+                json.solution = createImpIdeasImplemented.Solution;
                 json.dateComplete = createImpIdeasImplemented.DateComplete.Value;
                 json.workCreated = createImpIdeasImplemented.WorkCreated;
                 json.processObservationCreated = createImpIdeasImplemented.ProcessObservationCreated;
-                json.dateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase ?? HttpUtility.HtmlEncode(createImpIdeasImplemented.DateEnterIntoDatabase);
+                json.dateEnterIntoDatabase = createImpIdeasImplemented.DateEnterIntoDatabase;
 
                 _applicationDbContext.ChangeRequests.Add(new ChangeRequest
                 {

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using HHSBoard.Models;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Web;
 
 namespace HHSBoard.Extensions
 {
@@ -24,6 +28,18 @@ namespace HHSBoard.Extensions
 
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public static void EncodeUserHtml(this BaseCreateModel baseCreateModel)
+        {
+            foreach (var prop in baseCreateModel.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.PropertyType == typeof(string)))
+            {
+                var value = (string)prop.GetValue(baseCreateModel, null);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    prop.SetValue(baseCreateModel, HttpUtility.HtmlEncode(value));
+                }
+            }
         }
     }
 }

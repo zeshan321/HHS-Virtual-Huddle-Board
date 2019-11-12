@@ -3,7 +3,7 @@ using System;
 
 namespace HHSBoard.Models.NewImpOpViewModels
 {
-    public class CreateNewImpOp
+    public class CreateNewImpOp : BaseCreateModel
     {
         public string Legend { get; set; }
         public string PersonIdentifyingOpportunity { get; set; }

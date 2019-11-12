@@ -2,7 +2,7 @@
 
 namespace HHSBoard.Models.CelebrationViewModels
 {
-    public class CreateCelebrationModel
+    public class CreateCelebrationModel : BaseCreateModel
     {
         public int BoardID { get; set; }
 

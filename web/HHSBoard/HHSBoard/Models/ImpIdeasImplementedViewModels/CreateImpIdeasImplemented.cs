@@ -3,7 +3,7 @@ using System;
 
 namespace HHSBoard.Models.ImpIdeasImplementedViewModels
 {
-    public class CreateImpIdeasImplemented
+    public class CreateImpIdeasImplemented : BaseCreateModel
     {
         public string Name { get; set; }
         public DateTime? Date { get; set; }

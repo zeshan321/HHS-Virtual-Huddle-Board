@@ -1,7 +1,4 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
-}
+﻿@{ ViewData["Title"] = "Index"; }
 
 <style>
     ins {
@@ -21,74 +18,75 @@
 
     $(function () {
         $table = $('#table');
-
         initTable();
+
+        $("body").on("click", ".approve", function () {
+            var rowId = parseInt($(this).attr("data-row-id"));
+            $.ajax({
+                type: "POST",
+                url: "/ChangeRequest/ApproveChange",
+                data: {
+                    changeRequestID: rowId
+                },
+                dataType: "json",
+                success: function (data) {
+                    $table.bootstrapTable('remove', { field: 'id', values: [rowId] });
+
+                    $.notify({
+                        message: 'Successfully approved change request.'
+                    }, {
+                            type: 'success'
+                        });
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                        });
+                }
+            });
+        });
+
+        $("body").on("click", ".reject", function () {
+            var rowId = parseInt($(this).attr("data-row-id"));
+            $.ajax({
+                type: "POST",
+                url: "/ChangeRequest/RejectChange",
+                data: {
+                    changeRequestID: rowId
+                },
+                dataType: "json",
+                success: function (data) {
+                    $table.bootstrapTable('remove', { field: 'id', values: [rowId] });
+
+                    $.notify({
+                        message: 'Successfully rejected change request.'
+                    }, {
+                            type: 'success'
+                    });
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                        });
+                }
+            });
+        });
     });
 
     function initTable() {
-        window.operateEvents = {
-            'click .approve': function (e, value, row, index) {
-                $.ajax({
-                    type: "POST",
-                    url: "/ChangeRequest/ApproveChange",
-                    data: { changeRequestID: row.id },
-                        dataType: "json",
-                        success: function (data) {
-                            $.notify({
-                                message: 'Successfully approved change request.'
-                            }, {
-                                    type: 'success'
-                            });
-
-                            $table.bootstrapTable('remove', {
-                                field: 'id',
-                                values: [row.id]
-                            });
-                        },
-                        error: function (data) {
-                            var response = data.responseJSON;
-
-                            $.notify({
-                                message: response
-                            }, {
-                                    type: 'danger'
-                            });
-                        }
-                });
-            },
-            'click .reject': function (e, value, row, index) {
-                $.ajax({
-                    type: "POST",
-                    url: "/ChangeRequest/RejectChange",
-                    data: { changeRequestID: row.id },
-                    dataType: "json",
-                    success: function (data) {
-                        $.notify({
-                            message: 'Successfully rejected change request.'
-                        }, {
-                                type: 'success'
-                            });
-
-                        $table.bootstrapTable('remove', {
-                            field: 'id',
-                            values: [row.id]
-                        });
-                    },
-                    error: function (data) {
-                        var response = data.responseJSON;
-
-                        $.notify({
-                            message: response
-                        }, {
-                                type: 'danger'
-                            });
-                    }
-                });
-            }
-        }
-
         $table.bootstrapTable('destroy').bootstrapTable({
-            exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf']
+            exportTypes: ['json', 'xml', 'txt', 'sql', 'excel', 'pdf'],
+            exportOptions: {
+                fileName: exportDateFilename()
+            }
         });
     }
 
@@ -115,8 +113,28 @@
 
         var element = "<dl>";
 
-        value = decodeHtml(value);
+        $.each(JSON.parse(value), function (key, value) {
+            element = element + "<dt>" + key + "</dt>"
 
+            value = decodeHtml(value);
+            if (value != "") {
+                element = element + "<dd>" + value + "</dd>";
+            } else {
+                element = element + "";
+            }
+        });
+
+        return element + "</dl>";
+    }
+
+    function jsonFormatTwo(value) {
+        if (value == "" || value == null) {
+            return value;
+        }
+
+        var element = "<dl>";
+
+        value = decodeHtml(value);
         $.each(JSON.parse(value), function (key, value) {
             element = element + "<dt>" + key + "</dt>"
 
@@ -148,16 +166,16 @@
             newValue = "";
         }
 
-        return htmldiff(jsonFormat(old), jsonFormat(newValue));
+        return htmldiff(jsonFormatTwo(old), jsonFormat(newValue));
     }
 
     function operateFormatter(value, row, index) {
         return [
-            '<a class="approve btn btn-success" href="javascript:void(0)" title="Approve">',
+            '<a class="approve btn btn-success" data-row-id=' + row.id + ' title="Approve">',
             '<i class="fa fa-check"></i>',
             '</a>',
             '',
-            '<a class="reject btn btn-danger" href="javascript:void(0)" title="Reject">',
+            '<a class="reject btn btn-danger" data-row-id=' + row.id + ' title="Reject">',
             '<i class="fa fa-ban"></i>',
             '</a>'
         ].join('')
@@ -168,20 +186,7 @@
     <h1>Change Requests</h1>
 </div>
 
-<table id="table"
-       data-pagination="true"
-       data-show-export="true"
-       data-search="true"
-       data-mobile-responsive="false"
-       data-check-on-init="true"
-       data-id-field="id"
-       data-show-toggle="true"
-       data-show-refresh="true"
-       data-auto-refresh="true"
-       data-show-fullscreen="true"
-       data-side-pagination="server"
-       data-sort-id="asc"
-       data-url="/ChangeRequest/GetChangeRequestData">
+<table id="table" data-pagination="true" data-show-export="true" data-search="true" data-mobile-responsive="false" data-check-on-init="true" data-id-field="id" data-show-toggle="true" data-show-refresh="true" data-auto-refresh="true" data-show-fullscreen="true" data-side-pagination="server" data-sort-id="asc" data-url="/ChangeRequest/GetChangeRequestData">
     <thead>
         <tr>
             <th data-field="id" data-visible="false" class="fit" data-sotrable="true">ID</th>
@@ -190,11 +195,10 @@
             <th data-field="boardName" class="fit">Board Name</th>
             <th data-field="tableName" class="fit">Table Name</th>
             <th data-field="username" class="fit">Username</th>
-            <th data-field="previousValues" data-formatter="jsonFormatter" class="fit">Current</th>
+            <th data-field="previousValues" data-formatter="jsonFormatTwo" class="fit">Current</th>
             <th data-field="values" data-formatter="jsonFormatter" class="fit">Requested</th>
             <th data-formatter="diffFormatter" class="fit">Difference</th>
-            <th data-field="operate" data-formatter="operateFormatter" data-events="operateEvents" class="fit"></th>
+            <th data-field="operate" data-formatter="operateFormatter" class="fit"></th>
         </tr>
     </thead>
 </table>
-

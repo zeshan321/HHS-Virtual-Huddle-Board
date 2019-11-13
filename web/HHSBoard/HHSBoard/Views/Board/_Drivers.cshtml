@@ -89,23 +89,26 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-6 col-md-4">
-        <div class="thumbnail">
-            <div class="caption text-center">
-                <h3>Upload File</h3>
-                <br />
-                <p></p>
-                <form action="/Board/FileUpload" method="post" enctype="multipart/form-data">
-                    <input type="text" name="type" class="inputfile" value="driver" required />
-                    <input type="text" name="BoardID" class="inputfile" value="@ViewBag.BoardID" required />
-                    <input type="text" name="TableType" class="inputfile" value="@ViewBag.TableType" required />
-                    <input type="file" name="formFile" id="file" class="inputfile" required />
-                    <button id="uploadButton" class="btn btn-primary" role="button"><label id="uploadLabel" for="file">Choose a file</label></button>
-                    <button id="submitFile" type="submit" class="btn btn-default">Submit</button>
-                </form>
+    @if (ViewBag.IsAdmin || ViewBag.IsStaff)
+    {
+        <div class="col-sm-6 col-md-4">
+            <div class="thumbnail">
+                <div class="caption text-center">
+                    <h3>Upload File</h3>
+                    <br />
+                    <p></p>
+                    <form action="/Board/FileUpload" method="post" enctype="multipart/form-data">
+                        <input type="text" name="type" class="inputfile" value="driver" required />
+                        <input type="text" name="BoardID" class="inputfile" value="@ViewBag.BoardID" required />
+                        <input type="text" name="TableType" class="inputfile" value="@ViewBag.TableType" required />
+                        <input type="file" name="formFile" id="file" class="inputfile" required />
+                        <button id="uploadButton" class="btn btn-primary" role="button"><label id="uploadLabel" for="file">Choose a file</label></button>
+                        <button id="submitFile" type="submit" class="btn btn-default">Submit</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
 
 <!-- Modal -->

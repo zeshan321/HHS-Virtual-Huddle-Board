@@ -47,11 +47,14 @@ namespace HHSBoard.Controllers
             var user = await _userManager.GetUserAsync(User);
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var isStaff = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(staffRoleID));
 
             ViewBag.BoardID = boardID;
             ViewBag.TableType = tableType;
             ViewBag.IsAdmin = isAdmin;
-            
+            ViewBag.IsStaff = isStaff;
+
             var board = _applicationDbContext.Boards.Where(b => b.ID == boardID).FirstOrDefault();
             return View(board);
         }

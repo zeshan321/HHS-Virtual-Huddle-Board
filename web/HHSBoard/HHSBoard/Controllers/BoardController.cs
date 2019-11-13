@@ -850,5 +850,24 @@ namespace HHSBoard.Controllers
 
             return Json(fileNames);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UndoChangeRequests(List<int> ids)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            foreach (int id in ids)
+            {
+                var changeRequest = await _applicationDbContext.ChangeRequests.SingleOrDefaultAsync(c => c.ID == id);
+                if (changeRequest == null || !changeRequest.Username.Equals(user.Email))
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json("You are not able to undo requests of other users!");
+                }
+
+                _applicationDbContext.ChangeRequests.Remove(changeRequest);
+            }
+            await _applicationDbContext.SaveChangesAsync();
+            return Json("Reverted change requests.");
+        }
     }
 }

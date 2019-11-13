@@ -148,6 +148,37 @@
             return false;
         });
 
+        $("body").on("click", ".undo", function () {
+            var ids = $(this).attr("data-ids");
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/UndoChangeRequests",
+                data: {
+                    ids: ids.split(",")
+                },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({
+                        message: 'Successfully reverted change request.'
+                    }, {
+                            type: 'success'
+                        });
+
+                    $table.bootstrapTable('refresh');
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({
+                        message: response
+                    }, {
+                            type: 'danger'
+                        });
+                }
+            });
+        });
+
         initTable();
     });
 
@@ -205,6 +236,7 @@
             success: function (data) {
                     for (var i = 0; i < data.length; i++) {
                         var item = data[i];
+
                         var changeRequestType = data[i].changeRequestType;
                         if (changeRequestType == 0) {
                             var row = $table.bootstrapTable('getRowByUniqueId', item.associatedID);
@@ -228,6 +260,21 @@
                         if (changeRequestType == 2) {
                             var row = $table.bootstrapTable('getRowByUniqueId', item.associatedID);
                             var htmlRow = $("[data-uniqueid=" + item.associatedID + "]").css("background-color", "#F08080");
+                        }
+
+                        var last = $("[data-uniqueid=" + item.associatedID + "]").find("td").last();
+                        if (!last.find(".undo").length) {
+                            last.append([
+                                '<a class="undo btn btn-warning" data-ids=' + item.id + ' title="Undo Row Change Requests">',
+                                '<i class="fa fa-undo"></i>',
+                                '</a>'
+                            ].join(''));
+                        } else {
+                            var undo = last.find(".undo").first();
+                            var ids = undo.attr("data-ids").split(",");
+                            if (!ids.includes(item.id.toString())) {
+                                undo.attr("data-ids", undo.attr("data-ids") + "," + item.id);
+                            }
                         }
                     }
                 },

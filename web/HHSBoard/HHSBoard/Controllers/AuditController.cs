@@ -26,8 +26,9 @@ namespace HHSBoard.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
             return View();
         }
 

@@ -27,8 +27,9 @@ namespace HHSBoard.Controllers
             _signInManager = signInManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
             return View();
         }
 

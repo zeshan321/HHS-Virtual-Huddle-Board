@@ -23,6 +23,8 @@ namespace HHSBoard.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
+
             return View(new UnitsViewModel
             {
                 Units = await _applicationDbContext.Units.ToListAsync()

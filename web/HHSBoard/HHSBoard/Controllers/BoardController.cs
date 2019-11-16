@@ -54,6 +54,7 @@ namespace HHSBoard.Controllers
             ViewBag.TableType = tableType;
             ViewBag.IsAdmin = isAdmin;
             ViewBag.IsStaff = isStaff;
+            ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
 
             var board = _applicationDbContext.Boards.Where(b => b.ID == boardID).FirstOrDefault();
             return View(board);

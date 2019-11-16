@@ -1,0 +1,134 @@
+﻿@model HHSBoard.Models.ScorecardsViewModels.AllScorecardsViewModel
+@{
+    ViewData["Title"] = "All Scorecards";
+}
+
+<script>
+    $(document).ready(function () {
+        var scorecardFile;
+        var scorecardUrl;
+        $('body').on('click', '.view-button', function () {
+            var boardId = $(this).attr("data-board-id");
+            scorecardFile = $(this).attr("data-file");
+            scorecardUrl = window.location.origin + "/Uploads/" + boardId + "/scorecard/" + scorecardFile;
+
+            $("#fileViewerBody").empty();
+            $("#fileViewer").modal("show");
+        });
+
+        $('#fileViewer').on('shown.bs.modal', function (e) {
+            if (scorecardFile.endsWith(".png") || scorecardFile.endsWith(".jpg")) {
+                $("#fileViewerBody").append(`<img width='100%' height='100%' src='${scorecardUrl}'/>`);
+            } else {
+                scorecardUrl = encodeURIComponent(scorecardUrl);
+                $("#fileViewerBody").append(`<iframe src='https://docs.google.com/gview?url=${scorecardUrl}&embedded=true' width='100%' height='100%' frameborder='0'></iframe>`);
+            }
+        });
+
+        $('body').on('click', '.download-button', function () {
+            var boardId = $(this).attr("data-board-id");
+            scorecardFile = $(this).attr("data-file");
+            scorecardUrl = window.location.origin + "/Uploads/" + boardId + "/scorecard/" + scorecardFile;
+
+            var win = window.open(scorecardUrl, '_blank');
+            win.focus();
+        });
+
+        $('body').on('click', '.delete-button', function () {
+            var boardId = $(this).attr("data-board-id");
+            scorecardFile = $(this).attr("data-file");
+            scorecardUrl = window.location.origin + "/Uploads/" + boardId + "/scorecard/" + scorecardFile;
+
+            $.ajax({
+                type: "POST",
+                url: "/Board/DeleteFile",
+                data: { BoardID: boardId, type: "scorecard", fileName: scorecardFile },
+                dataType: "json",
+                success: function (data) {
+                    $(`div[data-file='${scorecardFile}']`).remove();
+
+                    $.notify({
+                        message: "Successfully deleted!"
+                    }, {
+                            type: 'success'
+                    });
+                },
+                error: function (data) {
+                    $.notify({
+                        message: "No permission!"
+                    }, {
+                            type: 'danger'
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<div class="page-header">
+    <h1>All Scorecards</h1>
+</div>
+
+<div class="panel-group" id="accordion">
+    @for (var index = 0; index < Model.Scorecards.Count; index++)
+    {
+        var boardScorecard = Model.Scorecards[index];
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_@boardScorecard.BoardId">
+                        @boardScorecard.BoardName
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse_@boardScorecard.BoardId" class="panel-collapse collapse @(index == 0 ? "in" : "")">
+                <div class="panel-body">
+                    @if (boardScorecard.FileNames.Count > 0)
+                    {
+                        <div class="row">
+                            @foreach (var fileName in boardScorecard.FileNames)
+                            {
+                                <div class="col-sm-6 col-md-4" data-file="@fileName">
+                                    <div class="thumbnail">
+                                        <div class="caption text-center">
+                                            <h3>@fileName</h3>
+                                            <br />
+                                            <p><a href="#" class="btn btn-primary view-button" role="button" data-board-id="@boardScorecard.BoardId" data-file="@fileName">View</a> <a class="btn btn-default download-button" role="button" href="#" data-board-id="@boardScorecard.BoardId" data-file="@fileName">Download</a> <a href="#" class="btn btn-danger delete-button" data-board-id="@boardScorecard.BoardId" data-file="@fileName" role="button">Delete</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>This board has no uploaded scoreboard</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div id="fileViewer" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-full">
+
+        <!-- Modal content-->
+        <div class="modal-content modal-content-full">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">File Preview</h4>
+            </div>
+            <div id="fileViewerBody" class="modal-body modal-body-full viewer-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default viewer-refresh">Refresh</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

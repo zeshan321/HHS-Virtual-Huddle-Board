@@ -25,19 +25,17 @@ namespace HHSBoard.Controllers
             _userManager = userManager;
         }
 
-        // Incorrect way. Should just include units in board.
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             ViewBag.name = user.Email;
+            ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
 
             var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var isAdmin = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && r.RoleId.Equals(adminRoleID));
 
             if (isAdmin)
             {
-                ViewBag.ChangeRequestAmount = await _applicationDbContext.ChangeRequests.CountAsync();
-
                 return View(new HomeIndexViewModel
                 {
                     Units = await _applicationDbContext.Units.ToListAsync(),

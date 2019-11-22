@@ -128,7 +128,7 @@ namespace HHSBoard.Controllers
                 json.id = Guid.NewGuid().ToString();
                 json.who = createCelebrationModel.Who;
                 json.what = createCelebrationModel.What;
-                json.why = createCelebrationModel.What;
+                json.why = createCelebrationModel.Why;
                 json.date = createCelebrationModel.Date.Value;
                 json.BoardID = createCelebrationModel.BoardID;
 
@@ -837,13 +837,13 @@ namespace HHSBoard.Controllers
         public async Task<IActionResult> GetListOfFiles(FileUploadModel fileUploadModel)
         {
             var user = await _userManager.GetUserAsync(User);
-            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            /*var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
             var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
             var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
             if (!bypassChangeRequest)
             {
                 return RedirectToAction("Index", "Home");
-            }
+            }*/
 
             var path = _hostEnvironment.WebRootPath + Path.DirectorySeparatorChar + "Uploads" + Path.DirectorySeparatorChar + fileUploadModel.BoardId + Path.DirectorySeparatorChar + fileUploadModel.Type;
             System.IO.Directory.CreateDirectory(path);

@@ -178,3 +178,65 @@
 .modal-body-full {
 	height: 80vh;
 }
+
+.navbar-inverse {
+    background-color: #002855 !important;
+}
+
+    .navbar-inverse button {
+        color: #ffffff !important;
+    }
+
+    .navbar-inverse .dropdown-menu a {
+        color: #000000 !important;
+    }
+
+    .navbar-inverse a {
+        color: #ffffff !important;
+    }
+
+        .navbar-inverse a:hover {
+            color: #4f7497 !important;
+        }
+
+.btn-floating {
+    background-color: #002855 !important;
+}
+
+.btn-floating {
+    background-color: #002855 !important;
+}
+
+    .btn-floating:hover {
+        background-color: #4f7497 !important;
+    }
+
+#navLeft {
+    background-color: #002855 !important;
+    border-color: #002855 !important;
+}
+
+    #navLeft:hover {
+        background-color: #4f7497 !important;
+        border-color: #4f7497 !important;
+    }
+
+#navRight {
+    background-color: #002855 !important;
+    border-color: #002855 !important;
+}
+
+    #navRight:hover {
+        background-color: #4f7497 !important;
+        border-color: #4f7497 !important;
+    }
+
+.btn-primary {
+    background-color: #002855 !important;
+    border-color: #002855 !important;
+}
+
+    .btn-primary:hover {
+        background-color: #4f7497 !important;
+        border-color: #4f7497 !important;
+    }

@@ -35,21 +35,15 @@
                         }, {
                                 type: 'success'
                         });
-
-                        $table.bootstrapTable('remove', {
-                            field: 'id',
-                            values: globalDeleteList
-                        });
                     } else {
                         $.notify({
                             message: 'Successfully requested to delete record.'
                         }, {
                                 type: 'success'
-                            });
-
-                        GetChangeRequests();
+                        });
                     }
 
+                     $table.bootstrapTable('refresh');
                     $("#deleteModal").modal("hide");
                 },
                 error: function (data) {
@@ -132,7 +126,11 @@
                             });
                     }
 
-                    location.reload();
+                    $table.bootstrapTable('refresh');
+                    $("#newImpOpModal").modal("hide");
+                    $('.createable').editable('setValue', null)
+                        .editable('option', 'pk', null)
+                        .removeClass('editable-unsaved');
                 },
                 error: function (data) {
                     var response = data.responseJSON;
@@ -208,7 +206,7 @@
         if (globalDeleteList.length > 0) {
             $("#deleteModal").modal("show");
 
-            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> records?");
+            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> record(s)?");
         } else {
             $.notify({
                 message: "No records selected to be deleted."

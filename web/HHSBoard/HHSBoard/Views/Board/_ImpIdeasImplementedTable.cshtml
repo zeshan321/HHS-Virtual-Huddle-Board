@@ -30,14 +30,20 @@
                 dataType: "json",
                 success: function (data) {
                     if (@ViewBag.IsAdmin.ToString().ToLower()) {
-                        $table.bootstrapTable('remove', {
-                            field: 'id',
-                            values: globalDeleteList
+                        $.notify({
+                            message: 'Successfully deleted.'
+                        }, {
+                                type: 'success'
                         });
                     } else {
-                        GetChangeRequests();
+                        $.notify({
+                            message: 'Successfully requested to delete record.'
+                        }, {
+                                type: 'success'
+                        });
                     }
 
+                     $table.bootstrapTable('refresh');
                     $("#deleteModal").modal("hide");
                 },
                 error: function (data) {
@@ -136,7 +142,11 @@
                             type: 'success'
                     });
 
-                    location.reload();
+                    $table.bootstrapTable('refresh');
+                    $("#newImpIdeasModal").modal("hide");
+                    $('.createable').editable('setValue', null)
+                        .editable('option', 'pk', null)
+                        .removeClass('editable-unsaved');
                 },
                 error: function (data) {
                     var response = data.responseJSON;
@@ -212,7 +222,7 @@
         if (globalDeleteList.length > 0) {
             $("#deleteModal").modal("show");
 
-            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> records?");
+            $("#deleteModalText").html("Are you sure you want to delete <strong>" + list.length + "</strong> record(s)?");
         } else {
             $.notify({
                 message: "No records selected to be deleted."

@@ -272,7 +272,7 @@ namespace HHSBoard.Controllers
                 json.legend = createNewImpOp.Legend;
                 json.personIdentifyingOpportunity = createNewImpOp.PersonIdentifyingOpportunity;
                 json.dateIdentified = createNewImpOp.DateIdentified.Value;
-                json.problem = createNewImpOp.Problem ;
+                json.problem = createNewImpOp.Problem;
                 json.staffWorkingOnOpportunity = createNewImpOp.StaffWorkingOnOpportunity;
                 json.strategicGoals = createNewImpOp.StrategicGoals;
                 json.isPtFamilyInvovlmentOpportunity = createNewImpOp.IsPtFamilyInvovlmentOpportunity;
@@ -464,7 +464,7 @@ namespace HHSBoard.Controllers
                         TableName = fieldDeleteModel.TableType,
                         AssociatedID = id,
                         AssociatedName = null,
-                        BoardID =fieldDeleteModel.BoardID,
+                        BoardID = fieldDeleteModel.BoardID,
                         Values = ""
                     });
                 }
@@ -665,7 +665,7 @@ namespace HHSBoard.Controllers
                     || c.What.ToUpper().Contains(search)
                     || c.Why.ToUpper().Contains(search));
                 }
-                
+
                 return new CelebrationViewModel
                 {
                     Total = total,
@@ -761,7 +761,7 @@ namespace HHSBoard.Controllers
         {
             return (T)await GetViewModel(boardTableViewModel);
         }
-        
+
         public async Task<IActionResult> GetChangeRequests(GetChangeRequestModel getChangeRequestModel)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -872,6 +872,80 @@ namespace HHSBoard.Controllers
             }
             await _applicationDbContext.SaveChangesAsync();
             return Json("Reverted change requests.");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TransferWIP(TransferModel transferModel)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var adminRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Admin"))).Id;
+            var staffRoleID = (await _applicationDbContext.Roles.SingleOrDefaultAsync(r => r.Name.Equals("Staff"))).Id;
+            var bypassChangeRequest = await _applicationDbContext.UserRoles.AnyAsync(r => r.UserId.Equals(user.Id) && (r.RoleId.Equals(adminRoleID) || r.RoleId.Equals(staffRoleID)));
+            if (!bypassChangeRequest)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("You do not have permission to transfer!");
+            }
+
+            if (transferModel.IsNewImp)
+            {
+                if (!_applicationDbContext.NewImpOps.Where(n => n.BoardID == transferModel.BoardID && n.ID == transferModel.RowId).Any())
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json("Row not found! Try again.");
+                }
+
+                var newImpOps = await _applicationDbContext.NewImpOps.FirstAsync(n => n.BoardID == transferModel.BoardID && n.ID == transferModel.RowId);
+
+                _applicationDbContext.WIPs.Add(new WIP
+                {
+                    Saftey = "",
+                    Name = "",
+                    Date = DateTime.Now,
+                    Problem = newImpOps.Problem,
+                    EightWs = newImpOps.EightWs,
+                    StrategicGoals = newImpOps.StrategicGoals,
+                    IsPtFamilyInvovlmentOpportunity = newImpOps.IsPtFamilyInvovlmentOpportunity,
+                    PickChart = newImpOps.PickChart,
+                    DateAssigned = newImpOps.DateIdentified,
+                    StaffWorkingOnOpportunity = newImpOps.StaffWorkingOnOpportunity,
+                    Why = "",
+                    JustDoIt = newImpOps.JustDoIt,
+                    Updates = "",
+                    BoardID = newImpOps.BoardID
+                });
+
+                _applicationDbContext.NewImpOps.Remove(newImpOps);
+                await _applicationDbContext.SaveChangesAsync();
+                return Json("Successfully transfered to WIP.");
+            }
+            else
+            {
+                if (!_applicationDbContext.WIPs.Where(n => n.BoardID == transferModel.BoardID && n.ID == transferModel.RowId).Any())
+                {
+                    Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return Json("Row not found! Try again.");
+                }
+
+                var wip = await _applicationDbContext.WIPs.FirstAsync(n => n.BoardID == transferModel.BoardID && n.ID == transferModel.RowId);
+
+                _applicationDbContext.NewImpOps.Add(new NewImpOp
+                {
+                    DateIdentified = wip.Date,
+                    Problem = wip.Problem,
+                    EightWs = wip.EightWs,
+                    StrategicGoals = wip.StrategicGoals,
+                    IsPtFamilyInvovlmentOpportunity = wip.IsPtFamilyInvovlmentOpportunity,
+                    PickChart = wip.PickChart,
+                    StaffWorkingOnOpportunity = wip.StaffWorkingOnOpportunity,
+                    JustDoIt = wip.JustDoIt,
+                    BoardID = wip.BoardID
+                });
+
+                _applicationDbContext.WIPs.Remove(wip);
+                await _applicationDbContext.SaveChangesAsync();
+                return Json("Successfully transfered to back to New Improvement Opportunity.");
+            }
         }
     }
 }

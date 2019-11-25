@@ -58,7 +58,6 @@
             });
         });
 
-
         // Make modal create fields editable
         $("#createLegend").editable();
         $("#createPersonIdentifyingOpportunity").editable();
@@ -185,6 +184,25 @@
         window.operateEvents = {
             'click .remove': function (e, value, row, index) {
                 deleteFields([row.id]);
+            },
+            'click .transfer': function (e, value, row, index) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Board/TransferWIP",
+                        data: {
+                            BoardID: @ViewBag.BoardID, RowId: row.id, IsNewImp: true
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            $.notify({ message: data }, { type: 'success' });
+                            $table.bootstrapTable('refresh');
+                        },
+                        error: function (data) {
+                            var response = data.responseJSON;
+
+                            $.notify({message: response}, {type: 'danger'});
+                        }
+                });
             }
         }
 
@@ -217,11 +235,22 @@
     }
 
     function operateFormatter(value, row, index) {
-        return [
+        var buttons = [
             '<a class="remove btn btn-danger" href="javascript:void(0)" title="Remove">',
             '<i class="fa fa-trash"></i>',
             '</a>'
-        ].join('')
+        ];
+
+        @if (ViewBag.IsAdmin || ViewBag.IsStaff)
+        {
+            <text>
+                buttons.push('<a class="transfer btn btn-success" href="javascript:void(0)" title="Transfer to WIP">')
+                buttons.push('<i class="fa fa-random fa-flip-horizontal"></i>')
+                buttons.push('</a>')
+            </text>
+        }
+
+        return buttons.join('')
     }
 
     function GetChangeRequests() {

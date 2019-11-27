@@ -15,67 +15,100 @@
                 data: { name: unitName },
                 dataType: "json",
                 success: function (data) {
-                    $.notify({
-                        message: 'Successfully created unit.'
-                    }, {
-                        type: 'success'
-                        });
-                    $("#tableBody").append("<tr>" +
-                        "<td> " + data.id + "</td>" +
+                    $.notify({ message: 'Successfully created unit.' }, { type: 'success' });
+
+                    $("#tableBody").append("<tr id='" + data.id  + "'>" +
                         "<td>" + data.name + "</td>" +
                         "<td>" +
-                        "<button data-id='" + data.id + "' class='btn btn-danger'><i class='fa fa-trash'></i></button>" +
-                        "<button data-id='" + data.id + "' class='btn btn-primary'><i class='fa fa-pencil-alt'></i></button>" +
+                        "<button data-id='" + data.id + "' data-name='" + data.name + "' name='delete' class='btn btn-danger'><i class='fa fa-trash'></i></button>" +
+                        " " + 
+                        "<button data-id='" + data.id + "' data-name='" + data.name + "' name='update' class='btn btn-primary'><i class='fa fa-pencil-alt'></i></button>" +
                         "</td>" +
                         "</tr>");
+
                     $('#newUnitsModal').modal('toggle');
                 },
                 error: function (data) {
                     var response = data.responseJSON;
 
-                    $.notify({
-                        message: response
-                    }, {
-                        type: 'danger'
-                    });
+                    $.notify({ message: response }, { type: 'danger' });
                 }
             });
 
             return false;
         })
+
+        var id;
+        $("body").on("click", "[name=delete]", function () {
+            id = $(this).attr("data-id");
+
+            var name = $(this).attr("data-name");
+            $("#deleteUnitText").text("Are you sure you want to delete " + name + "?")
+            $("#deleteUnitModal").modal("show");
+        });
+
+        $("#deletUnitForm").submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: "POST",
+                url: "/Units/DeleteUnit",
+                data: { UnitId: id },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({ message: 'Successfully deleted unit.' }, { type: 'success' });
+
+                    $("#" + id).remove();
+                    $('#deleteUnitModal').modal('toggle');
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({ message: response }, { type: 'danger' });
+                }
+            });
+
+            return false;
+        });
+
+        $("body").on("click", "[name=update]", function () {
+            id = $(this).attr("data-id");
+
+            var name = $(this).attr("data-name");
+            $("#editName").val(name);
+            $("#editUnitsModal").modal("show");
+        });
+
+        $("#editUnitForm").submit(function (e) {
+            e.preventDefault();
+            var newName = $("#editName").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Units/UpdateName",
+                data: { UnitId: id, Name: newName },
+                dataType: "json",
+                success: function (data) {
+                    $.notify({ message: 'Successfully updated unit.' }, { type: 'success' });
+                    location.reload();
+                },
+                error: function (data) {
+                    var response = data.responseJSON;
+
+                    $.notify({ message: response }, { type: 'danger' });
+                }
+            });
+
+            return false;
+        });
     })
 </script>
 
 <div class="container">
     <h2>Units</h2>
-    <div id="newUnitsModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Create a New Unit</h4>
-                </div>
-                <form id="createUnitForm" class="form-inline">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="name">Department Name:</label>
-                            <input type="text" class="form-control" id="name" required />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Department</th>
                 <th></th>
             </tr>
@@ -83,12 +116,11 @@
         <tbody id="tableBody">
             @foreach (var unit in Model.Units)
             {
-                <tr>
-                    <td>@unit.ID</td>
+                <tr id="@unit.ID">
                     <td>@unit.Name</td>
                     <td>
-                        <button data-id="@unit.ID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-                        <button data-id="@unit.ID" class="btn btn-primary"><i class="fa fa-pencil-alt"></i></button>
+                        <button data-id="@unit.ID" data-name="@unit.Name" name="delete" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                        <button data-id="@unit.ID" data-name="@unit.Name" name="update" class="btn btn-primary"><i class="fa fa-pencil-alt"></i></button>
                     </td>
                 </tr>
             }
@@ -100,4 +132,80 @@
     <a class="btn-floating btn-large red" data-target="#newUnitsModal" data-toggle="modal">
         <i class="fa fa-plus"></i>
     </a>
+</div>
+
+<!-- Delete Unit Modal -->
+<div id="deleteUnitModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <form id="deletUnitForm">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Delete unit</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <p id="deleteUnitText" class="lead text-center"></p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="newUnitsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Create a new unit</h4>
+            </div>
+            <form id="createUnitForm" class="form-inline">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name">Department Name:</label>
+                        <input type="text" class="form-control" id="name" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="editUnitsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit unit</h4>
+            </div>
+            <form id="editUnitForm" class="form-inline">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name">Department Name:</label>
+                        <input type="text" class="form-control" id="editName" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

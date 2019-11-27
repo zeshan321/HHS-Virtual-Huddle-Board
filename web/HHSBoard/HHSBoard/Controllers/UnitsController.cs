@@ -45,5 +45,43 @@ namespace HHSBoard.Controllers
 
             return Json(unit);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUnit(ModifyUnitModel modifyUnitModel)
+        {
+            var unit = await _applicationDbContext.Units.SingleOrDefaultAsync(u => u.ID == modifyUnitModel.UnitId);
+            if (unit == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Unit not found!");
+            }
+
+            _applicationDbContext.Units.Remove(unit);
+            await _applicationDbContext.SaveChangesAsync();
+
+            return Json("Deleted unit!");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(ModifyUnitModel modifyUnitModel)
+        {
+            var unit = await _applicationDbContext.Units.SingleOrDefaultAsync(u => u.ID == modifyUnitModel.UnitId);
+            if (unit == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Unit not found!");
+            }
+
+            if (string.IsNullOrEmpty(modifyUnitModel.Name))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Invalid unit name.");
+            }
+
+            unit.Name = modifyUnitModel.Name;
+            await _applicationDbContext.SaveChangesAsync();
+
+            return Json("Updated unit name!");
+        }
     }
 }
